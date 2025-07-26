@@ -256,6 +256,37 @@ document.addEventListener('DOMContentLoaded', () => {
         linksHTML += `</div>`;
         studyMaterialsContent.innerHTML = linksHTML;
     }
+
+    function renderAssignment() {
+        const assignmentSection = document.getElementById('assignment-section');
+        const module = modulesData[appState.currentModule];
+        assignmentSection.innerHTML = '';
+        if (!module || !module.assignment) {
+            assignmentSection.innerHTML = `<div class="text-center text-gray-500">No assignment for this module.</div>`;
+            return;
+        }
+        const { title, description } = module.assignment;
+        const score = appState.userProgress[appState.currentModule] || 0;
+        
+        assignmentSection.innerHTML = `
+            <h2 class="text-2xl font-bold text-white mb-6">${title}</h2>
+            <div class="max-w-4xl mx-auto">
+                <div class="text-gray-300 mb-6 leading-relaxed">${description}</div>
+                <textarea id="assignment-submission" class="w-full p-3 bg-primary-dark border border-border-color rounded-md mb-4 focus:ring-2 focus:ring-accent-blue focus:border-accent-blue placeholder-gray-500 text-white" rows="8" placeholder="Complete your assignment here..."></textarea>
+                <div class="flex items-center justify-center gap-4 mb-6">
+                    <button id="submit-assignment-btn" class="w-full sm:w-auto bg-accent-blue hover:bg-accent-blue-hover text-white font-bold py-3 px-8 rounded-md transition-colors duration-200 button-glow">Submit for AI Review</button>
+                </div>
+                <div id="feedback-area" class="bg-primary-dark p-4 rounded-md border border-border-color text-gray-300 min-h-[100px]">
+                    <p class="text-gray-500">Your AI-generated score and feedback will appear here.</p>
+                </div>
+                <div class="chart-container mt-8">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+        `;
+        initializeChart(score);
+        document.getElementById('submit-assignment-btn').addEventListener('click', handleMissionDebrief);
+    }
     
     // --- FULL MODULE DATA & INITIALIZATION ---
     Object.assign(modulesData.module1, {
