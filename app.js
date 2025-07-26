@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- API & DATA ---
-    const API_KEY = "AIzaSyDucHm7Pl65UQB3u9c_LHLTSYm-GY01KHMv"; // <-- IMPORTANT: Paste your Google AI API key here
+    // Your Google AI API Key is now integrated.
+    const API_KEY = "AIzaSyDucHm7Pl65UQB3u9c_LHLTSYm-GY01KHMv"; 
 
     // This prompt defines the AI's personality and rules for the general Q&A Co-Pilot.
     const aiSystemPrompt = `You are a world-class UI/UX Design Lead and expert Mentor. Your knowledge is strictly limited to UI design, UX research, user psychology, design systems, accessibility, and related fields. Your rules are: 1. Strictly UI/UX: If a user asks a question outside of your domain, you MUST politely decline. 2. Concise & Clear: Your answers must be concise, clear, and easy to understand. Use bullet points and bold text. 3. Be a Mentor: Provide expert-level, accurate, and insightful information.`;
@@ -168,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- EVENT LISTENERS ---
-    askAiBtn.addEventListener('click', async () => { const question = aiQuestionInput.value.trim(); if (!question) { aiResponseArea.innerHTML = '<p class="text-red-400">Please enter a question.</p>'; return; } askAiBtn.disabled = true; askAiBtn.innerHTML = `<span class="loader"></span><span class="ml-2">Thinking...</span>`; aiResponseArea.innerHTML = `<p class="text-gray-400">Processing...</p>`; try { const finalPrompt = `${aiSystemPrompt}\n\nUser's question: "${question}"`; const responseText = await getAITextResponse(finalPrompt); aiResponseArea.innerHTML = `<div class="content-fade-in whitespace-pre-wrap text-left">${responseText}</div>`; } catch (error) { aiResponseArea.innerHTML = `<p class="text-red-400">Error: ${error.message}</p>`; } finally { askAiBtn.disabled = false; askAiBtn.innerHTML = `<span>Ask AI Co-Pilot</span>`; } });
+    askAiBtn.addEventListener('click', async () => { const question = aiQuestionInput.value.trim(); if (!question) { aiResponseArea.innerHTML = '<p class="text-red-400">Please enter a question.</p>'; return; } askAiBtn.disabled = true; askAiBtn.innerHTML = `<span class="loader"></span><span class="ml-2">Thinking...</span>`; aiResponseArea.innerHTML = `<p class="text-gray-400">Processing...</p>`; try { const finalPrompt = `${aiSystemPrompt}\n\nUser's question: "${question}"`; const responseText = await getAITextResponse(finalPrompt); aiResponseArea.innerHTML = `<div class="content-fade-in whitespace-pre-wrap text-left">${responseText}</div>`; } catch (error) { aiResponseArea.innerHTML = `<p class="text-red-400 font-bold">Error: ${error.message}</p>`; } finally { askAiBtn.disabled = false; askAiBtn.innerHTML = `<span>Ask AI Co-Pilot</span>`; } });
     moduleProgressionContainer.addEventListener('click', (e) => { const card = e.target.closest('.module-card'); if (card && !card.classList.contains('locked')) { changeModule(card.dataset.module); } });
     
     // --- OTHER FUNCTIONS ---
