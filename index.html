@@ -1,20 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI/UX Learning Hub | Pro Edition</title>
+    
+    <!-- Scripts & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-primary-dark text-gray-300">
 
-    // --- STATE MANAGEMENT ---
-    const appState = {
-        currentModule: 'module1',
-        selectedSkill: null,
-        userProgress: {},
-    };
+    <div class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header class="bg-sidebar-dark p-4 border-b border-border-color flex justify-between items-center sticky top-0 z-20">
+            <h1 class="text-2xl font-bold text-white tracking-tighter flex items-center">
+                <span class="text-accent-blue">UX</span>Hub
+            </h1>
+        </header>
 
-    // --- API & DATA ---
-    const API_KEY = "AIzaSyDucHm7Pl65UQB3u9c_LHLTSYm-GY01KHM"; // Your API Key is here.
-    const aiSystemPrompt = `You are a world-class UI/UX Design Lead and expert Mentor. Your knowledge is strictly limited to UI design, UX research, user psychology, design systems, accessibility, and related fields. Your rules are: 1. Strictly UI/UX: If a user asks a question outside of your domain, you MUST politely decline. 2. Concise & Clear: Your answers must be concise, clear, and easy to understand. Use bullet points and bold text. 3. Be a Mentor: Provide expert-level, accurate, and insightful information.`;
-    const modulesData = {
-        module1: { name: "Foundations of UX Design", learningTime: "Approx. 40 hours", minScoreToUnlock: 70 },
-        module2: { name: "Empathize, Define, & Ideate", learningTime: "Approx. 20 hours", minScoreToUnlock: 70 },
-        module3: { name: "Wireframing & Prototyping", learningTime: "Approx. 25 hours", minScoreToUnlock: 70 },
-        module4: { name: "UX Research & Usability", learningTime: "Approx. 21 hours", minScoreToUnlock: 70 },
-        module5: { name: "High-Fidelity Design", learningTime: "Approx. 33 hours", minScoreToUnlock: 70 },
-        module6: { name: "Responsive Design", learningTime: "Approx. 41 hours", minScoreToUnlock: 70 },
-        module7: { name: "Capstone & Portfolio", learningTime: "Approx. 44 hours", minScoreToUnlock: 101 },
-    };
+        <!-- Main Layout -->
+        <div class="flex-1 grid lg:grid-cols-12 gap-8 p-6 md:p-8">
+            <!-- Module Card Navigation -->
+            <aside class="lg:col-span-4 xl:col-span-3 flex flex-col items-center">
+                <h2 class="text-2xl font-bold text-white mb-6">Learning Path</h2>
+                <div id="module-navigation" class="w-full max-w-sm">
+                    <!-- Module cards will be dynamically inserted here -->
+                </div>
+            </aside>
+
+            <!-- Scrollable Content Area -->
+            <main id="main-content" class="lg:col-span-8 xl:col-span-9 overflow-y-auto transition-opacity duration-500 opacity-0">
+                <!-- Content will be rendered inside this container -->
+            </main>
+        </div>
+    </div>
+
+    <!-- External JavaScript -->
+    <script src="app.js"></script>
+
+</body>
+</html>
