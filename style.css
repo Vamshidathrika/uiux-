@@ -23,72 +23,34 @@ body {
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-/* --- SIDEBAR NAVIGATION --- */
-.module-link {
-    @apply flex items-center px-4 py-2 rounded-md text-sm font-medium text-gray-400 transition-all duration-200 border-l-2 border-transparent;
+/* --- UPCOMING MODULE CARD --- */
+.upcoming-card {
+    @apply relative bg-secondary-dark border border-border-color p-4 rounded-lg text-center cursor-pointer transition-all duration-300 opacity-50 hover:opacity-100 hover:border-purple-500;
 }
 
-.module-link:hover {
-    @apply bg-gray-800/50 text-white;
+.upcoming-card:hover .unlock-prompt {
+    @apply opacity-100;
 }
 
-.module-link.active {
-    background-color: rgba(167, 85, 247, 0.1);
-    color: var(--text-primary);
-    border-color: var(--accent-purple);
-    box-shadow: 0 0 15px rgba(167, 85, 247, 0.3);
+.unlock-prompt {
+    @apply absolute -top-8 left-1/2 -translate-x-1/2 w-max bg-gray-900 text-white text-xs px-2 py-1 rounded-md opacity-0 transition-opacity duration-300 pointer-events-none;
 }
 
-.module-link.locked {
-    @apply text-gray-600 cursor-not-allowed opacity-60;
+/* --- MODAL STYLES --- */
+#unlock-modal.visible {
+    @apply flex; /* Use flex to show */
 }
 
-.module-link.locked:hover {
-    @apply bg-transparent text-gray-600;
+#unlock-modal.visible #unlock-modal-content {
+    @apply opacity-100 translate-y-0;
 }
 
 /* --- GENERAL COMPONENTS --- */
-.button-glow {
-    box-shadow: 0 0 20px rgba(167, 85, 247, 0.4);
-}
-
-.learning-card {
-    @apply bg-secondary-dark border border-border-color p-6 rounded-lg content-slide-up;
-}
-
-.skill-card {
-    transition: all 0.2s ease-in-out;
-    @apply bg-secondary-dark border border-border-color p-4 rounded-lg cursor-pointer text-center h-full flex flex-col items-center justify-center;
-}
-
-.skill-card:hover {
-    @apply bg-gray-800/50 border-gray-600;
-}
-
-.skill-card.active {
-    border-color: var(--accent-purple);
-    background-color: rgba(167, 85, 247, 0.1);
-}
-
-/* --- CHART CONTAINER --- */
-.chart-container {
-    position: relative;
-    width: 100%;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    height: 300px;
-}
-
-/* --- AI LOADER --- */
-.loader {
-    width: 18px;
-    height: 18px;
-    border: 2px solid #FFF;
-    border-bottom-color: transparent;
-    border-radius: 50%;
-    display: inline-block;
-    box-sizing: border-box;
-    animation: rotation 1s linear infinite;
-}
+.button-glow { box-shadow: 0 0 20px rgba(167, 85, 247, 0.4); }
+.learning-card { @apply bg-secondary-dark border border-border-color p-6 rounded-lg content-slide-up; }
+.skill-card { transition: all 0.2s ease-in-out; @apply bg-secondary-dark border border-border-color p-4 rounded-lg cursor-pointer text-center h-full flex flex-col items-center justify-center; }
+.skill-card:hover { @apply bg-gray-800/50 border-gray-600; }
+.skill-card.active { border-color: var(--accent-purple); background-color: rgba(167, 85, 247, 0.1); }
+.chart-container { position: relative; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; height: 250px; }
+.loader { width: 18px; height: 18px; border: 2px solid #FFF; border-bottom-color: transparent; border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
 @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
