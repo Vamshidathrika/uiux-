@@ -24,64 +24,62 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-
-/* --- TAB STYLES --- */
-.tab-button {
-    @apply relative py-3 px-4 sm:px-6 text-base text-gray-500 hover:text-indigo-600 border-b-2 border-transparent focus:outline-none transition-all duration-200 font-medium whitespace-nowrap;
+/* --- MODULE PROGRESSION CARDS --- */
+.module-carousel-container {
+    overflow-x: auto;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.module-carousel-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
-.tab-button.active {
-    border-bottom: 3px solid #4f46e5; /* A vibrant indigo */
-    @apply text-indigo-600 font-semibold;
+.module-card {
+    @apply relative flex-shrink-0 w-64 p-6 rounded-lg border border-gray-700 bg-gray-900/50 backdrop-blur-sm transition-all duration-300 cursor-pointer;
 }
 
-/* NEW: Glassmorphism style for locked tabs */
-.tab-button:disabled {
-    @apply text-gray-600 cursor-not-allowed;
-    opacity: 0.7;
+.module-card:hover {
+    @apply border-blue-500 transform -translate-y-1;
 }
 
-.tab-button:disabled::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-color: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px); /* For Safari support */
-    border-radius: 6px;
-    z-index: 1;
+.module-card.active {
+    @apply border-blue-500 bg-gray-800/70 shadow-2xl shadow-blue-900/20;
 }
 
-.tab-button:disabled > * {
-    position: relative;
-    z-index: 2;
+.module-card.locked {
+    @apply bg-gray-900/20 cursor-not-allowed;
 }
 
-
-.tab-button .lock-icon {
-    display: none; /* Hide lock icon by default */
+.module-card.locked:hover {
+    @apply border-gray-700 transform-none;
 }
 
-.tab-button:disabled .lock-icon {
-    @apply inline-block ml-2 text-gray-600; /* Show lock icon only on disabled tabs */
+.module-card.locked .module-content {
+    @apply opacity-30 blur-sm;
+}
+
+.module-card.locked .lock-overlay {
+    @apply opacity-100;
+}
+
+.lock-overlay {
+    @apply absolute inset-0 flex flex-col items-center justify-center text-center p-4 opacity-0 transition-opacity duration-300;
 }
 
 
 /* --- SKILL CARD STYLES --- */
 .skill-card {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200 cursor-pointer text-center h-full flex flex-col items-center justify-center;
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    @apply bg-gray-900/50 border border-gray-700 p-4 rounded-lg cursor-pointer text-center h-full flex flex-col items-center justify-center;
 }
 
 .skill-card:hover {
-    transform: translateY(-5px);
-    @apply shadow-lg;
+    @apply bg-gray-800/70 border-gray-600;
 }
 
 .skill-card.active {
-    transform: translateY(-2px);
-    box-shadow: 0 0 0 2px #4f46e5;
-    @apply border-indigo-500;
+    box-shadow: 0 0 0 2px #3b82f6; /* blue-500 */
+    @apply bg-gray-800/70 border-blue-500;
 }
 
 
@@ -96,13 +94,6 @@ body {
     max-height: 400px;
 }
 
-@media (min-width: 768px) {
-    .chart-container {
-        height: 350px;
-    }
-}
-
-
 /* --- AI LOADER --- */
 .loader {
     width: 18px;
@@ -116,10 +107,6 @@ body {
 }
 
 @keyframes rotation {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
