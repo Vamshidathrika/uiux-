@@ -4,16 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
         currentModule: 'module1',
         selectedSkill: null,
         userProgress: {},
-        isContentLoaded: false
     };
 
     // --- API & DATA ---
     const API_KEY = "AIzaSyDucHm7Pl65UQB3u9c_LHLTSYm-GY01KHM"; // Your API Key is here.
-    
-    // This prompt defines the AI's personality and rules for the general Q&A Co-Pilot.
     const aiSystemPrompt = `You are a world-class UI/UX Design Lead and expert Mentor. Your knowledge is strictly limited to UI design, UX research, user psychology, design systems, accessibility, and related fields. Your rules are: 1. Strictly UI/UX: If a user asks a question outside of your domain, you MUST politely decline. 2. Concise & Clear: Your answers must be concise, clear, and easy to understand. Use bullet points and bold text. 3. Be a Mentor: Provide expert-level, accurate, and insightful information.`;
-
-    // This object contains all the content for the learning hub.
     const modulesData = {
         module1: { name: "Foundations of UX Design", learningTime: "Approx. 40 hours", minScoreToUnlock: 70 },
         module2: { name: "Empathize, Define, & Ideate", learningTime: "Approx. 20 hours", minScoreToUnlock: 70 },
@@ -26,15 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DOM SELECTORS ---
     const mainContent = document.getElementById('main-content');
-    const moduleTabsContainer = document.getElementById('module-tabs');
-    const learningsContent = document.getElementById('learnings-content');
-    const skillGrid = document.getElementById('skill-grid');
-    const skillDetails = document.getElementById('skill-details');
-    const studyMaterialsContent = document.getElementById('study-materials-content');
-    const assignmentSection = document.getElementById('assignment-section');
-    const aiQuestionInput = document.getElementById('ai-question-input');
-    const askAiBtn = document.getElementById('ask-ai-btn');
-    const aiResponseArea = document.getElementById('ai-response-area');
+    const moduleNavigationContainer = document.getElementById('module-navigation');
+    const headerTitle = document.getElementById('header-title');
     
     let progressChart = null;
 
@@ -45,127 +33,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- RENDER FUNCTIONS ---
     
-    const renderTabs = () => {
-        moduleTabsContainer.innerHTML = '';
+    const renderModuleNavigation = () => {
+        moduleNavigationContainer.innerHTML = '';
         Object.keys(modulesData).forEach(key => {
             const module = modulesData[key];
             const moduleNum = parseInt(key.replace('module', ''));
-            const button = document.createElement('button');
-            button.className = 'tab-button';
-            button.setAttribute('role', 'tab');
-            button.dataset.module = key;
+            const link = document.createElement('a');
+            link.href = '#';
+            link.dataset.module = key;
 
-            const isLocked = moduleNum > 1 && (appState.userProgress[`module${moduleNum - 1}`] || 0) < modulesData[`module${moduleNum - 1}`].minScoreToUnlock;
+            let isLocked = false;
+            let unlockMessage = '';
             
-            button.disabled = isLocked;
-            button.innerHTML = `Module ${moduleNum}${isLocked ? '<span class="lock-icon">🔒</span>' : ''}`;
-            
-            if (appState.currentModule === key) {
-                button.classList.add('active');
+            if (moduleNum > 1) {
+                const prevModuleKey = `module${moduleNum - 1}`;
+                const prevModule = modulesData[prevModuleKey];
+                const prevModuleScore = appState.userProgress[prevModuleKey] || 0;
+                const scoreNeeded = prevModule.minScoreToUnlock;
+                if (prevModuleScore < scoreNeeded) {
+                    isLocked = true;
+                    unlockMessage = `Complete '${prevModule.name}' with a score of ${scoreNeeded}% or higher to unlock.`;
+                }
             }
-            moduleTabsContainer.appendChild(button);
-        });
-    };
+            
+            link.className = `module-link ${appState.currentModule === key ? 'active' : ''} ${isLocked ? 'locked' : ''}`;
+            link.setAttribute('title', isLocked ? unlockMessage : `Select Module ${moduleNum}`);
 
-    const renderLearnings = () => {
-        const module = modulesData[appState.currentModule];
-        learningsContent.innerHTML = '';
-        if (!module || !module.learnings) return;
-        
-        module.learnings.forEach((learning, index) => {
-            const card = document.createElement('div');
-            card.className = 'bg-white p-6 rounded-lg shadow-md border border-gray-200 content-slide-up';
-            card.style.animationDelay = `${index * 100}ms`;
-            card.innerHTML = `
-                <h3 class="text-xl font-semibold mb-2 text-indigo-700">${learning.title}</h3>
-                <p class="text-gray-600">${learning.description}</p>
+            link.innerHTML = `
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span>Module ${moduleNum}</span>
+                ${isLocked ? '<svg class="w-4 h-4 ml-auto text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>' : ''}
             `;
-            learningsContent.appendChild(card);
+            moduleNavigationContainer.appendChild(link);
         });
     };
-    
-    const renderSkills = () => {
+
+    const renderHeader = () => {
         const module = modulesData[appState.currentModule];
-        skillGrid.innerHTML = '';
-        if (!module || !module.skills) return;
-    
-        Object.keys(module.skills).forEach((key, index) => {
-            const card = createSkillCard(key, module.skills[key]);
-            card.style.animationDelay = `${index * 100}ms`;
-            skillGrid.appendChild(card);
-        });
-    
-        const firstSkillKey = module.skills ? Object.keys(module.skills)[0] : null;
-        if (firstSkillKey) {
-            appState.selectedSkill = firstSkillKey;
-            updateActiveSkillCard();
-            renderSkillDetails();
-            renderStudyMaterials();
-        } else {
-            skillDetails.innerHTML = `<p class="text-gray-500 text-center">No skills defined for this module.</p>`;
-            studyMaterialsContent.innerHTML = '';
-        }
-    };
-    
-    const createSkillCard = (key, skill) => {
-        const card = document.createElement('div');
-        card.className = 'skill-card content-slide-up';
-        card.dataset.skillKey = key;
-        card.innerHTML = `
-            <div class="text-3xl">${skill.icon}</div>
-            <h4 class="mt-2 font-semibold text-gray-700">${skill.title}</h4>
+        headerTitle.innerHTML = `
+            <h2 class="text-xl font-bold text-white">${module.name}</h2>
+            <p class="text-sm text-gray-400">Estimated Time: ${module.learningTime}</p>
         `;
-        return card;
-    };
-    
-    const renderSkillDetails = () => {
-        const skill = modulesData[appState.currentModule]?.skills?.[appState.selectedSkill];
-        if (!skill) {
-             skillDetails.innerHTML = `<p class="text-gray-500 text-center">Select a skill to see its details.</p>`;
-             return;
-        };
-
-        skillDetails.innerHTML = `
-            <div class="content-fade-in w-full text-left">
-                <h3 class="text-2xl font-bold mb-4 text-indigo-700 flex items-center">${skill.icon} <span class="ml-3">${skill.title}</span></h3>
-                <div class="space-y-4">
-                    <div>
-                        <h4 class="font-bold text-lg text-gray-800">Meaning</h4>
-                        <p class="text-gray-600 mt-1">${skill.meaning}</p>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-lg text-gray-800">Use Cases</h4>
-                        <p class="text-gray-600 mt-1">${skill.useCases}</p>
-                    </div>
-                </div>
-            </div>`;
-    };
-
-    const renderStudyMaterials = () => {
-        const materials = modulesData[appState.currentModule]?.studyMaterials?.[appState.selectedSkill];
-        studyMaterialsContent.innerHTML = '';
-
-        if (!materials || materials.length === 0) {
-            studyMaterialsContent.innerHTML = `<p class="text-gray-500">No study materials for this skill yet.</p>`;
-            return;
-        }
-
-        const skillTitle = modulesData[appState.currentModule].skills[appState.selectedSkill].title;
-        let linksHTML = `<h3 class="text-2xl font-bold mb-6 text-gray-900">Deep Dive Resources: ${skillTitle}</h3>
-                         <div class="grid md:grid-cols-2 gap-4">`;
-        
-        materials.forEach(material => {
-            linksHTML += `
-                <a href="${material.url}" target="_blank" rel="noopener noreferrer" class="block bg-indigo-50 hover:bg-indigo-100 p-4 rounded-lg transition-colors duration-200 text-indigo-700 font-medium hover:text-indigo-900">
-                   🔗 ${material.title}
-                </a>`;
-        });
-
-        linksHTML += `</div>`;
-        studyMaterialsContent.innerHTML = linksHTML;
     };
 
     const renderAssignment = () => {
+        const assignmentSection = document.getElementById('assignment-section');
         const module = modulesData[appState.currentModule];
         assignmentSection.innerHTML = '';
         if (!module || !module.assignment) {
@@ -176,15 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const score = appState.userProgress[appState.currentModule] || 0;
         
         assignmentSection.innerHTML = `
-            <h2 class="text-3xl font-bold text-center mb-2 text-gray-900">${title}</h2>
-            <p class="text-center text-gray-500 mb-6">Estimated Time: ${module.learningTime}</p>
+            <h2 class="text-2xl font-bold text-white mb-6">${title}</h2>
             <div class="max-w-4xl mx-auto">
-                <div class="text-gray-700 mb-6 leading-relaxed">${description}</div>
-                <textarea id="assignment-submission" class="w-full p-3 border border-gray-300 rounded-md mb-4 focus:ring-indigo-500 focus:border-indigo-500" rows="8" placeholder="Complete your assignment here..."></textarea>
+                <div class="text-gray-300 mb-6 leading-relaxed">${description}</div>
+                <textarea id="assignment-submission" class="w-full p-3 bg-primary-dark border border-border-color rounded-md mb-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500 text-white" rows="8" placeholder="Complete your assignment here..."></textarea>
                 <div class="flex items-center justify-center gap-4 mb-6">
-                    <button id="submit-assignment-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-md transition-colors duration-200">Submit for AI Review</button>
+                    <button id="submit-assignment-btn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-md transition-colors duration-200">Submit for AI Review</button>
                 </div>
-                <div id="feedback-area" class="bg-gray-100 p-4 rounded-md border border-gray-200 text-gray-700 min-h-[100px]">
+                <div id="feedback-area" class="bg-primary-dark p-4 rounded-md border border-border-color text-gray-300 min-h-[100px]">
                     <p class="text-gray-500">Your AI-generated score and feedback will appear here.</p>
                 </div>
                 <div class="chart-container mt-8">
@@ -197,12 +108,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- UPDATE & HELPER FUNCTIONS ---
-    
+
     const handleMissionDebrief = async () => {
         const feedbackArea = document.getElementById('feedback-area');
         const submissionText = document.getElementById('assignment-submission').value.trim();
         const submitBtn = document.getElementById('submit-assignment-btn');
-        if (!submissionText) { feedbackArea.innerHTML = '<p class="text-red-600 font-bold">Please enter your assignment submission.</p>'; return; }
+        if (!submissionText) { feedbackArea.innerHTML = '<p class="text-red-400 font-bold">Please enter your assignment submission.</p>'; return; }
 
         submitBtn.disabled = true;
         submitBtn.innerHTML = `<span class="loader"></span><span class="ml-2">AI is Reviewing...</span>`;
@@ -224,144 +135,89 @@ document.addEventListener('DOMContentLoaded', () => {
             appState.userProgress[appState.currentModule] = score;
             saveProgress();
             updateProgressChart(score);
-            renderTabs(); 
+            renderModuleNavigation(); 
 
             const scoreThreshold = modulesData[appState.currentModule].minScoreToUnlock;
             let resultHTML = score >= scoreThreshold ?
-                `<p class="font-bold text-green-700">Mission Passed! AI Score: ${score}/100.</p><p>You have unlocked the next module!</p>` :
-                `<p class="font-bold text-yellow-600">Mission Incomplete. AI Score: ${score}/100.</p><p>Please review the feedback, improve your submission, and try again.</p>`;
-            resultHTML += `<div class="mt-4 p-3 bg-indigo-50 rounded-md border border-indigo-200 text-left"><h4 class="font-bold text-indigo-800">AI Mentor's Feedback:</h4><div class="text-indigo-700 whitespace-pre-wrap mt-2">${feedback}</div></div>`;
+                `<p class="font-bold text-green-400">Mission Passed! AI Score: ${score}/100.</p><p>You have unlocked the next module!</p>` :
+                `<p class="font-bold text-yellow-400">Mission Incomplete. AI Score: ${score}/100.</p><p>Please review the feedback, improve your submission, and try again.</p>`;
+            resultHTML += `<div class="mt-4 p-3 bg-secondary-dark rounded-md border border-border-color text-left"><h4 class="font-bold text-blue-400">AI Mentor's Feedback:</h4><div class="text-gray-300 whitespace-pre-wrap mt-2">${feedback}</div></div>`;
             feedbackArea.innerHTML = resultHTML;
 
         } catch (error) {
-            feedbackArea.innerHTML = `<p class="text-red-600 font-bold">An error occurred during AI review: ${error.message}</p>`;
+            feedbackArea.innerHTML = `<p class="text-red-400">An error occurred during AI review: ${error.message}</p>`;
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerHTML = `Submit for AI Review`;
         }
     };
-
-    const updateActiveSkillCard = () => {
-        document.querySelectorAll('.skill-card').forEach(c => c.classList.remove('active'));
-        if (appState.selectedSkill) {
-            const activeCard = skillGrid.querySelector(`[data-skill-key="${appState.selectedSkill}"]`);
-            if (activeCard) activeCard.classList.add('active');
-        }
-    };
     
-    const changeModule = (newModule) => {
-        appState.currentModule = newModule;
-        appState.selectedSkill = null;
-        
-        mainContent.style.opacity = 0;
-        
-        setTimeout(() => {
-            renderTabs();
-            renderLearnings();
-            renderSkills();
-            renderAssignment();
-            mainContent.style.opacity = 1;
-        }, 300);
-    };
-
-    const loadProgress = () => {
-        const savedProgress = JSON.parse(localStorage.getItem('userProgress') || '{}');
-        appState.userProgress = savedProgress;
-        for (let i = 1; i <= 7; i++) {
-            const moduleKey = `module${i}`;
-            if (typeof appState.userProgress[moduleKey] !== 'number') {
-                appState.userProgress[moduleKey] = 0;
-            }
-        }
-    };
-
-    const saveProgress = () => {
-        localStorage.setItem('userProgress', JSON.stringify(appState.userProgress));
-    };
-
-    const initializeChart = (score) => {
-        const ctx = document.getElementById('progressChart')?.getContext('2d');
-        if (!ctx) return;
-        if (progressChart) progressChart.destroy();
-        progressChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Mastery Level'],
-                datasets: [{
-                    label: 'Score',
-                    data: [score],
-                    backgroundColor: score >= 70 ? 'rgba(16, 185, 129, 0.6)' : 'rgba(79, 70, 229, 0.6)',
-                    borderColor: score >= 70 ? '#10B981' : '#4F46E5',
-                    borderWidth: 2,
-                    borderRadius: 5,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, max: 100, title: { display: true, text: 'Score (%)' } }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-    };
-
-    const updateProgressChart = (score) => {
-        if (!progressChart) {
-            initializeChart(score);
-            return;
-        }
-        progressChart.data.datasets[0].data[0] = score;
-        progressChart.data.datasets[0].backgroundColor = score >= 70 ? 'rgba(16, 185, 129, 0.6)' : 'rgba(79, 70, 229, 0.6)';
-        progressChart.data.datasets[0].borderColor = score >= 70 ? '#10B981' : '#4F46E5';
-        progressChart.update();
-    };
-
-
     // --- EVENT LISTENERS ---
-
-    moduleTabsContainer.addEventListener('click', (e) => {
-        const button = e.target.closest('.tab-button');
-        if (button && !button.disabled && button.dataset.module !== appState.currentModule) {
-            changeModule(button.dataset.module);
-        }
-    });
-
-    skillGrid.addEventListener('click', (e) => {
-        const card = e.target.closest('.skill-card');
-        if(card && card.dataset.skillKey !== appState.selectedSkill) {
-            appState.selectedSkill = card.dataset.skillKey;
-            updateActiveSkillCard();
-            renderSkillDetails();
-            renderStudyMaterials();
-        }
-    });
-
-    askAiBtn.addEventListener('click', async () => {
+    const handleAskAI = async () => {
+        const aiQuestionInput = document.getElementById('ai-question-input');
+        const askAiBtn = document.getElementById('ask-ai-btn');
+        const aiResponseArea = document.getElementById('ai-response-area');
         const question = aiQuestionInput.value.trim();
-        if (!question) {
-            aiResponseArea.innerHTML = '<p class="text-red-400">Please enter a question for the AI Co-Pilot.</p>';
-            return;
-        }
-
+        if (!question) { aiResponseArea.innerHTML = '<p class="text-red-400">Please enter a question.</p>'; return; }
         askAiBtn.disabled = true;
         askAiBtn.innerHTML = `<span class="loader"></span><span class="ml-2">Thinking...</span>`;
         aiResponseArea.innerHTML = `<p class="text-gray-400">Processing...</p>`;
-
         try {
             const finalPrompt = `${aiSystemPrompt}\n\nUser's question: "${question}"`;
             const responseText = await getAITextResponse(finalPrompt);
             aiResponseArea.innerHTML = `<div class="content-fade-in whitespace-pre-wrap text-left">${responseText}</div>`;
         } catch (error) {
-            aiResponseArea.innerHTML = `<p class="text-red-500 font-bold">Error: ${error.message}</p>`;
+            aiResponseArea.innerHTML = `<p class="text-red-400 font-bold">Error: ${error.message}</p>`;
         } finally {
             askAiBtn.disabled = false;
             askAiBtn.innerHTML = `<span>Ask AI Co-Pilot</span>`;
         }
-    });
+    };
+
+    moduleNavigationContainer.addEventListener('click', (e) => { e.preventDefault(); const link = e.target.closest('.module-link'); if (link && !link.classList.contains('locked')) { changeModule(link.dataset.module); } });
+    
+    // --- OTHER FUNCTIONS ---
+    const loadProgress = () => { const savedProgress = JSON.parse(localStorage.getItem('userProgress') || '{}'); appState.userProgress = savedProgress; Object.keys(modulesData).forEach(key => { if (typeof appState.userProgress[key] !== 'number') { appState.userProgress[key] = 0; } }); };
+    const saveProgress = () => { localStorage.setItem('userProgress', JSON.stringify(appState.userProgress)); };
+    const changeModule = (newModuleKey) => { if (newModuleKey === appState.currentModule) return; appState.currentModule = newModuleKey; appState.selectedSkill = null; mainContent.style.opacity = 0; setTimeout(() => { renderModuleNavigation(); renderContent(); mainContent.style.opacity = 1; }, 300); };
+    const initializeChart = (score) => { const ctx = document.getElementById('progressChart')?.getContext('2d'); if (!ctx) return; if (progressChart) progressChart.destroy(); Chart.defaults.color = '#A0A0A0'; Chart.defaults.borderColor = '#374151'; progressChart = new Chart(ctx, { type: 'bar', data: { labels: ['Mastery Level'], datasets: [{ label: 'Score', data: [score], backgroundColor: score >= 70 ? 'rgba(0, 123, 255, 0.5)' : 'rgba(209, 213, 219, 0.2)', borderColor: score >= 70 ? '#007BFF' : '#D1D5DB', borderWidth: 2, borderRadius: 5, }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100, grid: { color: '#374151' }, ticks: { color: '#D1D5DB' }, title: { display: true, text: 'Score (%)', color: '#D1D5DB' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } } }); };
+    const updateProgressChart = (score) => { if (!progressChart) { initializeChart(score); return; } progressChart.data.datasets[0].data[0] = score; progressChart.data.datasets[0].backgroundColor = score >= 70 ? 'rgba(0, 123, 255, 0.5)' : 'rgba(209, 213, 219, 0.2)'; progressChart.data.datasets[0].borderColor = score >= 70 ? '#007BFF' : '#D1D5DB'; progressChart.update(); };
+    
+    function renderContent() {
+        renderHeader();
+        const learningsContent = document.getElementById('learnings-content');
+        const skillGrid = document.getElementById('skill-grid');
+        const module = modulesData[appState.currentModule];
+        learningsContent.innerHTML = '';
+        if (module.learnings) module.learnings.forEach((learning, index) => { const card = document.createElement('div'); card.className = 'learning-card'; card.style.animationDelay = `${index * 100}ms`; card.innerHTML = `<h3 class="text-xl font-semibold mb-2 text-blue-400">${learning.title}</h3><p class="text-gray-400">${learning.description}</p>`; learningsContent.appendChild(card); });
+        skillGrid.innerHTML = '';
+        if(module.skills) Object.keys(module.skills).forEach((key, index) => { const card = document.createElement('div'); card.className = 'skill-card content-slide-up'; card.dataset.skillKey = key; card.style.animationDelay = `${index * 100}ms`; card.innerHTML = `<div class="text-4xl">${module.skills[key].icon}</div><h4 class="mt-2 font-semibold text-white">${module.skills[key].title}</h4>`; skillGrid.appendChild(card); });
+        const firstSkillKey = module.skills ? Object.keys(module.skills)[0] : null;
+        appState.selectedSkill = firstSkillKey;
+        document.querySelector(`#skill-grid [data-skill-key="${appState.selectedSkill}"]`)?.classList.add('active');
+        renderSkillDetailsAndMaterials();
+        renderAssignment();
+    }
+
+    function renderSkillDetailsAndMaterials() {
+        const skillDetails = document.getElementById('skill-details');
+        const studyMaterialsContent = document.getElementById('study-materials-content');
+        const skill = modulesData[appState.currentModule]?.skills?.[appState.selectedSkill];
+        if (!skill) { skillDetails.innerHTML = `<p class="text-gray-500 text-center">Select a skill.</p>`; studyMaterialsContent.parentElement.classList.add('hidden'); return; }
+        skillDetails.innerHTML = `<div class="content-fade-in w-full text-left"><h3 class="text-2xl font-bold mb-4 text-blue-400 flex items-center">${skill.icon} <span class="ml-3">${skill.title}</span></h3><div class="space-y-4"><div><h4 class="font-bold text-lg text-white">Meaning</h4><p class="text-gray-400 mt-1">${skill.meaning}</p></div><div><h4 class="font-bold text-lg text-white">Use Cases</h4><p class="text-gray-400 mt-1">${skill.useCases}</p></div></div></div>`;
+        const materials = modulesData[appState.currentModule]?.studyMaterials?.[appState.selectedSkill];
+        const container = studyMaterialsContent.parentElement;
+        if (!materials || materials.length === 0) { container.classList.add('hidden'); return; }
+        container.classList.remove('hidden');
+        let linksHTML = `<h2 class="text-2xl font-bold text-white mb-6">Deep Dive Resources: ${skill.title}</h2><div class="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">`;
+        materials.forEach(material => { linksHTML += `<a href="${material.url}" target="_blank" rel="noopener noreferrer" class="block bg-secondary-dark hover:bg-gray-800/50 p-4 rounded-lg transition-colors duration-200 text-blue-400 font-medium hover:text-blue-300 text-left flex items-center space-x-3 border border-border-color"><svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg><span>${material.title}</span></a>`; });
+        linksHTML += `</div>`;
+        studyMaterialsContent.innerHTML = linksHTML;
+    }
+    
+    document.getElementById('skill-grid').addEventListener('click', (e) => { const card = e.target.closest('.skill-card'); if(card && card.dataset.skillKey !== appState.selectedSkill) { appState.selectedSkill = card.dataset.skillKey; document.querySelectorAll('.skill-card').forEach(c => c.classList.remove('active')); card.classList.add('active'); renderSkillDetailsAndMaterials(); } });
+    document.getElementById('ask-ai-btn').addEventListener('click', handleAskAI);
+
 
     // --- FULL MODULE DATA & INITIALIZATION ---
     Object.assign(modulesData.module1, { learnings: [ { title: "Intro to UX Design", description: "Understand the basics of UX design and the product development lifecycle." }, { title: "Core UX Concepts", description: "Familiarize yourself with essential UX terminology and frameworks like user-centered design." }], skills: { ux: { title: "User Experience (UX)", icon: "🎨", meaning: "The overall experience of a person using a product, especially in terms of how easy or pleasing it is to use.", useCases: "Applied to create intuitive apps, websites, and services." } }, studyMaterials: { ux: [{ title: "What is UX Design?", url: "#" }] }, assignment: { title: "Mission 1: The Usability Detective", description: "Choose a common object or app screen. Identify 3 specific usability issues. For each, propose a clear design improvement and explain your reasoning." } });
@@ -372,18 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Object.assign(modulesData.module6, { learnings: [ { title: "Responsive Grids", description: "Learn how to design layouts that adapt to different screen sizes." }, { title: "Mobile-First Design", description: "Understand the strategy of designing for mobile before designing for desktop." }], skills: { responsive: { title: "Responsive Design", icon: "📱", meaning: "Designing web pages that look good on all devices.", useCases: "Crucial for modern web development to ensure optimal user experience across devices." } }, studyMaterials: { responsive: [{ title: "Responsive Design Explained", url: "#" }] }, assignment: { title: "Mission 6: The Adaptable Architect", description: "Create a responsive design (mobile and desktop views) for a blog article page." } });
     Object.assign(modulesData.module7, { learnings: [ { title: "Building a Case Study", description: "Learn how to tell a compelling story about your design process." }, { title: "Portfolio Presentation", description: "Prepare to present your work effectively in interviews." }], skills: { portfolio: { title: "UX Portfolio", icon: "💼", meaning: "A curated collection of a UX designer's best work.", useCases: "Essential for job applications, allowing designers to demonstrate their abilities to potential employers." } }, studyMaterials: { portfolio: [{ title: "How to Create a UX Portfolio", url: "#" }] }, assignment: { title: "Mission 7: The Capstone", description: "Create a complete case study for one of the previous projects you completed in this course, ready to be added to your portfolio." } });
 
-    const init = () => {
-        loadProgress();
-        renderTabs();
-        renderLearnings();
-        renderSkills();
-        renderAssignment();
-        
-        setTimeout(() => {
-            mainContent.style.opacity = 1;
-            appState.isContentLoaded = true;
-        }, 100);
-    };
-
+    const init = () => { loadProgress(); renderModuleNavigation(); renderContent(); setTimeout(() => { mainContent.style.opacity = 1; }, 100); };
+    
     init();
 });
