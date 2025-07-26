@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DOM SELECTORS ---
     const mainContent = document.getElementById('main-content');
     const moduleNavigationContainer = document.getElementById('module-navigation');
-    const headerTitle = document.getElementById('header-title');
     
     let progressChart = null;
 
@@ -35,12 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const renderModuleNavigation = () => {
         moduleNavigationContainer.innerHTML = '';
-        Object.keys(modulesData).forEach(key => {
+        const moduleKeys = Object.keys(modulesData);
+        
+        moduleKeys.forEach((key, index) => {
             const module = modulesData[key];
-            const moduleNum = parseInt(key.replace('module', ''));
-            const link = document.createElement('a');
-            link.href = '#';
-            link.dataset.module = key;
+            const moduleNum = index + 1;
+            const card = document.createElement('div');
+            card.dataset.module = key;
 
             let isLocked = false;
             let unlockMessage = '';
@@ -49,70 +49,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 const prevModuleKey = `module${moduleNum - 1}`;
                 const prevModule = modulesData[prevModuleKey];
                 const prevModuleScore = appState.userProgress[prevModuleKey] || 0;
-                const scoreNeeded = prevModule.minScoreToUnlock;
-                if (prevModuleScore < scoreNeeded) {
+                if (prevModuleScore < prevModule.minScoreToUnlock) {
                     isLocked = true;
-                    unlockMessage = `Complete '${prevModule.name}' with a score of ${scoreNeeded}% or higher to unlock.`;
+                    unlockMessage = `Complete '${prevModule.name}' to unlock.`;
                 }
             }
             
-            link.className = `module-link ${appState.currentModule === key ? 'active' : ''} ${isLocked ? 'locked' : ''}`;
-            link.setAttribute('title', isLocked ? unlockMessage : `Select Module ${moduleNum}`);
+            card.className = `module-card ${isLocked ? 'locked' : ''}`;
+            card.setAttribute('title', isLocked ? unlockMessage : `Select ${module.name}`);
+            
+            const yOffset = index * 20;
+            const xOffset = index * 15;
+            card.style.transform = `translateY(${yOffset}px) translateX(${xOffset}px) translateZ(-${index * 20}px)`;
+            
+            const score = appState.userProgress[key] || 0;
+            const isCompleted = score >= module.minScoreToUnlock;
 
-            link.innerHTML = `
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                <span>Module ${moduleNum}</span>
-                ${isLocked ? '<svg class="w-4 h-4 ml-auto text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>' : ''}
+            card.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm font-bold text-accent-blue">MODULE ${moduleNum}</span>
+                    ${isCompleted ? '<span class="text-xs font-bold text-green-400 bg-green-900/50 px-2 py-1 rounded-full">✓ COMPLETED</span>' : ''}
+                </div>
+                <h3 class="text-lg font-bold text-white">${module.name}</h3>
+                <p class="text-sm text-gray-400 mt-auto pt-4">Score: ${score}/100</p>
             `;
-            moduleNavigationContainer.appendChild(link);
+            moduleNavigationContainer.appendChild(card);
         });
     };
 
-    const renderHeader = () => {
+    const renderMainContent = () => {
         const module = modulesData[appState.currentModule];
-        headerTitle.innerHTML = `
-            <h2 class="text-xl font-bold text-white">${module.name}</h2>
-            <p class="text-sm text-gray-400">Estimated Time: ${module.learningTime}</p>
+        mainContent.innerHTML = `
+            <header class="mb-12">
+                <h2 class="text-3xl font-bold text-white">${module.name}</h2>
+                <p class="text-md text-gray-400">Estimated Time: ${module.learningTime}</p>
+            </header>
+            <section id="module-content-section" class="mb-12"></section>
+            <section id="study-materials-section" class="mb-12"><div id="study-materials-content" class="text-center"></div></section>
+            <section id="assignment-section" class="mb-12 bg-secondary-dark border border-border-color p-6 md:p-8 rounded-lg"></section>
+            <section id="ai-co-pilot-section" class="bg-secondary-dark border border-border-color text-white p-6 md:p-8 rounded-lg">
+                <h2 class="text-2xl font-bold text-center mb-6 text-white">AI Co-Pilot</h2>
+                <div class="max-w-3xl mx-auto">
+                    <p class="text-gray-400 text-center mb-4">Your instant mentor for UI/UX questions.</p>
+                    <textarea id="ai-question-input" class="w-full p-3 bg-primary-dark border border-border-color rounded-md mb-4 focus:ring-2 focus:ring-accent-blue focus:border-accent-blue placeholder-gray-500 text-white" rows="4" placeholder="e.g., 'Explain Hick's Law in simple terms.'"></textarea>
+                    <button id="ask-ai-btn" class="w-full bg-accent-blue hover:bg-accent-blue-hover text-white font-bold py-3 px-4 rounded-md transition-all duration-300 flex items-center justify-center space-x-2 button-glow"><span>Ask AI Co-Pilot</span></button>
+                    <div id="ai-response-area" class="bg-primary-dark p-4 rounded-md border border-border-color min-h-[100px] mt-4"><p class="text-gray-500 text-center">AI response will appear here.</p></div>
+                </div>
+            </section>
         `;
-    };
-
-    const renderAssignment = () => {
-        const assignmentSection = document.getElementById('assignment-section');
-        const module = modulesData[appState.currentModule];
-        assignmentSection.innerHTML = '';
-        if (!module || !module.assignment) {
-            assignmentSection.innerHTML = `<div class="text-center text-gray-500">No assignment for this module.</div>`;
-            return;
-        }
-        const { title, description } = module.assignment;
-        const score = appState.userProgress[appState.currentModule] || 0;
-        
-        assignmentSection.innerHTML = `
-            <h2 class="text-2xl font-bold text-white mb-6">${title}</h2>
-            <div class="max-w-4xl mx-auto">
-                <div class="text-gray-300 mb-6 leading-relaxed">${description}</div>
-                <textarea id="assignment-submission" class="w-full p-3 bg-primary-dark border border-border-color rounded-md mb-4 focus:ring-2 focus:ring-accent-blue focus:border-accent-blue placeholder-gray-500 text-white" rows="8" placeholder="Complete your assignment here..."></textarea>
-                <div class="flex items-center justify-center gap-4 mb-6">
-                    <button id="submit-assignment-btn" class="w-full sm:w-auto bg-accent-blue hover:bg-accent-blue-hover text-white font-bold py-3 px-8 rounded-md transition-colors duration-200 button-glow">Submit for AI Review</button>
-                </div>
-                <div id="feedback-area" class="bg-primary-dark p-4 rounded-md border border-border-color text-gray-300 min-h-[100px]">
-                    <p class="text-gray-500">Your AI-generated score and feedback will appear here.</p>
-                </div>
-                <div class="chart-container mt-8">
-                    <canvas id="progressChart"></canvas>
-                </div>
-            </div>
-        `;
-        initializeChart(score);
-        document.getElementById('submit-assignment-btn').addEventListener('click', handleMissionDebrief);
+        renderSubtopicsAndSkills();
+        renderAssignment();
+        document.getElementById('ask-ai-btn').addEventListener('click', handleAskAI);
     };
 
     // --- UPDATE & HELPER FUNCTIONS ---
 
     const handleMissionDebrief = async () => {
-        const feedbackArea = document.getElementById('feedback-area');
-        const submissionText = document.getElementById('assignment-submission').value.trim();
-        const submitBtn = document.getElementById('submit-assignment-btn');
+        const feedbackArea = document.querySelector('#assignment-section #feedback-area');
+        const submissionText = document.querySelector('#assignment-section #assignment-submission').value.trim();
+        const submitBtn = document.querySelector('#assignment-section #submit-assignment-btn');
         if (!submissionText) { feedbackArea.innerHTML = '<p class="text-red-400 font-bold">Please enter your assignment submission.</p>'; return; }
 
         submitBtn.disabled = true;
@@ -173,17 +168,16 @@ document.addEventListener('DOMContentLoaded', () => {
             askAiBtn.innerHTML = `<span>Ask AI Co-Pilot</span>`;
         }
     };
-    moduleNavigationContainer.addEventListener('click', (e) => { e.preventDefault(); const link = e.target.closest('.module-link'); if (link && !link.classList.contains('locked')) { changeModule(link.dataset.module); } });
+    moduleNavigationContainer.addEventListener('click', (e) => { const card = e.target.closest('.module-card'); if (card && !card.classList.contains('locked')) { changeModule(card.dataset.module); } });
     
     // --- OTHER FUNCTIONS ---
     const loadProgress = () => { const savedProgress = JSON.parse(localStorage.getItem('userProgress') || '{}'); appState.userProgress = savedProgress; Object.keys(modulesData).forEach(key => { if (typeof appState.userProgress[key] !== 'number') { appState.userProgress[key] = 0; } }); };
     const saveProgress = () => { localStorage.setItem('userProgress', JSON.stringify(appState.userProgress)); };
-    const changeModule = (newModuleKey) => { if (newModuleKey === appState.currentModule) return; appState.currentModule = newModuleKey; appState.selectedSkill = null; mainContent.style.opacity = 0; setTimeout(() => { renderModuleNavigation(); renderContent(); mainContent.style.opacity = 1; }, 300); };
+    const changeModule = (newModuleKey) => { if (newModuleKey === appState.currentModule) return; appState.currentModule = newModuleKey; appState.selectedSkill = null; mainContent.style.opacity = 0; setTimeout(() => { renderModuleNavigation(); renderMainContent(); mainContent.style.opacity = 1; }, 300); };
     const initializeChart = (score) => { const ctx = document.getElementById('progressChart')?.getContext('2d'); if (!ctx) return; if (progressChart) progressChart.destroy(); Chart.defaults.color = '#D1D5DB'; Chart.defaults.borderColor = '#374151'; progressChart = new Chart(ctx, { type: 'bar', data: { labels: ['Mastery Level'], datasets: [{ label: 'Score', data: [score], backgroundColor: score >= 70 ? 'rgba(59, 130, 246, 0.5)' : 'rgba(209, 213, 219, 0.2)', borderColor: score >= 70 ? '#3B82F6' : '#D1D5DB', borderWidth: 2, borderRadius: 5, }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100, grid: { color: '#374151' }, ticks: { color: '#D1D5DB' }, title: { display: true, text: 'Score (%)', color: '#D1D5DB' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } } }); };
     const updateProgressChart = (score) => { if (!progressChart) { initializeChart(score); return; } progressChart.data.datasets[0].data[0] = score; progressChart.data.datasets[0].backgroundColor = score >= 70 ? 'rgba(59, 130, 246, 0.5)' : 'rgba(209, 213, 219, 0.2)'; progressChart.data.datasets[0].borderColor = score >= 70 ? '#3B82F6' : '#D1D5DB'; progressChart.update(); };
     
-    function renderContent() {
-        renderHeader();
+    function renderSubtopicsAndSkills() {
         const moduleContentSection = document.getElementById('module-content-section');
         const module = modulesData[appState.currentModule];
         moduleContentSection.innerHTML = '';
@@ -223,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector(`.skill-card[data-skill-key="${appState.selectedSkill}"]`)?.classList.add('active');
         
         renderStudyMaterials();
-        renderAssignment();
 
         document.querySelectorAll('.skill-card').forEach(card => {
             card.addEventListener('click', (e) => {
@@ -234,7 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderStudyMaterials();
             });
         });
-        document.getElementById('ask-ai-btn').addEventListener('click', handleAskAI);
     }
 
     function renderStudyMaterials() {
@@ -286,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Object.assign(modulesData.module6, { subtopics: [ { title: "Designing for All Screens", description: "Learn how to design layouts that adapt to different screen sizes.", skills: { responsive: { title: "Responsive Design", icon: "📱", studyMaterials: [{ title: "Responsive Design Tutorial", url: "https://www.youtube.com/watch?v=srvUrAS2_so" }] } } } ], assignment: { title: "Mission 6: The Adaptable Architect", description: "Create a responsive design (mobile and desktop views) for a blog article page." } });
     Object.assign(modulesData.module7, { subtopics: [ { title: "Showcasing Your Work", description: "Learn how to tell a compelling story about your design process in a case study.", skills: { portfolio: { title: "UX Portfolio", icon: "💼", studyMaterials: [{ title: "How to Build a Powerful UX Portfolio", url: "https://www.youtube.com/watch?v=Z_M0_b1h_sQ" }] } } } ], assignment: { title: "Mission 7: The Capstone", description: "Create a complete case study for one of the previous projects you completed in this course, ready to be added to your portfolio." } });
 
-    const init = () => { loadProgress(); renderModuleNavigation(); renderContent(); setTimeout(() => { mainContent.style.opacity = 1; }, 100); };
+    const init = () => { loadProgress(); renderModuleNavigation(); renderMainContent(); setTimeout(() => { mainContent.style.opacity = 1; }, 100); };
     
     init();
 });
