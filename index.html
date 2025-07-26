@@ -1,103 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UI/UX Learning Hub | SaaS Edition</title>
-    
-    <!-- Scripts & Fonts -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- External Stylesheet -->
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="bg-primary-dark text-gray-300">
 
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <aside class="w-64 bg-sidebar-dark flex-shrink-0 p-6 flex flex-col justify-between border-r border-border-color">
-            <div>
-                <h1 class="text-2xl font-bold text-white mb-10">Learning Hub</h1>
-                <nav id="module-navigation" class="space-y-2">
-                    <!-- Module links will be dynamically inserted here -->
-                </nav>
-            </div>
-            <div class="text-center text-xs text-gray-500">
-                <p>&copy; 2025 UI/UX Learning Hub</p>
-            </div>
-        </aside>
+    // --- STATE MANAGEMENT ---
+    const appState = {
+        currentModule: 'module1',
+        selectedSkill: null,
+        userProgress: {},
+    };
 
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Header -->
-            <header class="bg-primary-dark p-6 border-b border-border-color flex justify-between items-center">
-                <div id="header-title">
-                    <h2 class="text-xl font-bold text-white">Welcome</h2>
-                    <p class="text-sm text-gray-400">Select a module to begin your journey.</p>
-                </div>
-            </header>
-
-            <!-- Scrollable Content Area -->
-            <main id="main-content" class="flex-1 overflow-y-auto p-6 md:p-8 transition-opacity duration-500 opacity-0">
-                <!-- Learnings Section -->
-                <section id="learnings-section" class="mb-12">
-                    <h2 class="text-2xl font-bold text-white mb-6">Mission Objectives</h2>
-                    <div id="learnings-content" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Dynamic Content -->
-                    </div>
-                </section>
-
-                <!-- Skills Explorer -->
-                <section id="skills-explorer" class="mb-12">
-                    <h2 class="text-2xl font-bold text-white mb-6">Interactive Skill Explorer</h2>
-                    <div class="lg:grid lg:grid-cols-12 lg:gap-8">
-                        <div id="skill-grid" class="lg:col-span-4 grid grid-cols-2 gap-4">
-                            <!-- Dynamic Skill Cards -->
-                        </div>
-                        <div class="lg:col-span-8 mt-6 lg:mt-0">
-                            <div id="skill-details" class="bg-secondary-dark border border-border-color p-6 rounded-lg min-h-[200px] flex items-center justify-center">
-                                <!-- Dynamic Skill Details -->
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Study Materials -->
-                <section id="study-materials-section" class="mb-12">
-                    <div id="study-materials-content" class="text-center">
-                         <!-- Dynamic Study Materials -->
-                    </div>
-                </section>
-
-                <!-- Assignment & Progress -->
-                <section id="assignment-section" class="mb-12 bg-secondary-dark border border-border-color p-6 md:p-8 rounded-lg">
-                    <!-- Dynamic Assignment Content -->
-                </section>
-                
-                <!-- AI Co-Pilot -->
-                <section id="ai-co-pilot-section" class="bg-secondary-dark border border-border-color text-white p-6 md:p-8 rounded-lg">
-                    <h2 class="text-2xl font-bold text-center mb-6 text-white">AI Co-Pilot</h2>
-                    <div class="max-w-3xl mx-auto">
-                        <p class="text-gray-400 text-center mb-4">Your instant mentor for UI/UX questions.</p>
-                        <textarea id="ai-question-input" class="w-full p-3 bg-primary-dark border border-border-color rounded-md mb-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500 text-white" rows="4" placeholder="e.g., 'Explain Hick's Law in simple terms.'"></textarea>
-                        <button id="ask-ai-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition-all duration-300 flex items-center justify-center space-x-2">
-                            <span>Ask AI Co-Pilot</span>
-                        </button>
-                        <div id="ai-response-area" class="bg-primary-dark p-4 rounded-md border border-border-color min-h-[100px] mt-4">
-                            <p class="text-gray-500 text-center">AI response will appear here.</p>
-                        </div>
-                    </div>
-                </section>
-            </main>
-        </div>
-    </div>
-
-    <!-- External JavaScript -->
-    <script src="app.js"></script>
-
-</body>
-</html>
+    // --- API & DATA ---
+    const API_KEY = "AIzaSyDucHm7Pl65UQB3u9c_LHLTSYm-GY01KHM"; // Your API Key is here.
+    const aiSystemPrompt = `You are a world-class UI/UX Design Lead and expert Mentor. Your knowledge is strictly limited to UI design, UX research, user psychology, design systems, accessibility, and related fields. Your rules are: 1. Strictly UI/UX: If a user asks a question outside of your domain, you MUST politely decline. 2. Concise & Clear: Your answers must be concise, clear, and easy to understand. Use bullet points and bold text. 3. Be a Mentor: Provide expert-level, accurate, and insightful information.`;
+    const modulesData = {
+        module1: { name: "Foundations of UX Design", learningTime: "Approx. 40 hours", minScoreToUnlock: 70 },
+        module2: { name: "Empathize, Define, & Ideate", learningTime: "Approx. 20 hours", minScoreToUnlock: 70 },
+        module3: { name: "Wireframing & Prototyping", learningTime: "Approx. 25 hours", minScoreToUnlock: 70 },
+        module4: { name: "UX Research & Usability", learningTime: "Approx. 21 hours", minScoreToUnlock: 70 },
+        module5: { name: "High-Fidelity Design", learningTime: "Approx. 33 hours", minScoreToUnlock: 70 },
+        module6: { name: "Responsive Design", learningTime: "Approx. 41 hours", minScoreToUnlock: 70 },
+        module7: { name: "Capstone & Portfolio", learningTime: "Approx. 44 hours", minScoreToUnlock: 101 },
+    };
