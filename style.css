@@ -1,56 +1,106 @@
-/* Custom properties for the high-contrast Regulatis color palette */
-:root {
-    --primary-dark: #0D0C12;
-    --secondary-dark: #1A1821;
-    --sidebar-dark: #111016;
-    --accent-purple: #A755F7;
-    --accent-purple-hover: #9333EA; /* Tailwind purple-600 */
-    --border-color: #374151; /* Tailwind gray-700 */
-    --text-primary: #F9FAFB; /* Tailwind gray-50 */
-    --text-secondary: #D1D5DB; /* Tailwind gray-300 */
-}
-
+/* Using @apply to leverage Tailwind's utility classes for base styles */
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--primary-dark);
-    color: var(--text-secondary);
     @apply antialiased;
 }
 
 /* --- ANIMATIONS --- */
-.content-fade-in { animation: fadeIn 0.5s ease-in-out; }
-.content-slide-up { animation: slideUp 0.5s ease-in-out forwards; opacity: 0; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-/* --- UPCOMING MODULE CARD --- */
-.upcoming-card {
-    @apply relative bg-secondary-dark border border-border-color p-4 rounded-lg text-center cursor-pointer transition-all duration-300 opacity-50 hover:opacity-100 hover:border-purple-500;
+.content-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
 }
 
-.upcoming-card:hover .unlock-prompt {
-    @apply opacity-100;
+.content-slide-up {
+    animation: slideUp 0.5s ease-in-out forwards;
+    opacity: 0;
 }
 
-.unlock-prompt {
-    @apply absolute -top-8 left-1/2 -translate-x-1/2 w-max bg-gray-900 text-white text-xs px-2 py-1 rounded-md opacity-0 transition-opacity duration-300 pointer-events-none;
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-/* --- MODAL STYLES --- */
-#unlock-modal.visible {
-    @apply flex; /* Use flex to show */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-#unlock-modal.visible #unlock-modal-content {
-    @apply opacity-100 translate-y-0;
+
+/* --- TAB STYLES --- */
+.tab-button {
+    @apply py-3 px-4 sm:px-6 text-base text-gray-500 hover:text-gray-900 border-b-2 border-transparent focus:outline-none transition-all duration-200 font-medium whitespace-nowrap;
 }
 
-/* --- GENERAL COMPONENTS --- */
-.button-glow { box-shadow: 0 0 20px rgba(167, 85, 247, 0.4); }
-.learning-card { @apply bg-secondary-dark border border-border-color p-6 rounded-lg content-slide-up; }
-.skill-card { transition: all 0.2s ease-in-out; @apply bg-secondary-dark border border-border-color p-4 rounded-lg cursor-pointer text-center h-full flex flex-col items-center justify-center; }
-.skill-card:hover { @apply bg-gray-800/50 border-gray-600; }
-.skill-card.active { border-color: var(--accent-purple); background-color: rgba(167, 85, 247, 0.1); }
-.chart-container { position: relative; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; height: 250px; }
-.loader { width: 18px; height: 18px; border: 2px solid #FFF; border-bottom-color: transparent; border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
-@keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.tab-button.active {
+    border-bottom: 3px solid #4f46e5; /* A vibrant indigo */
+    @apply text-indigo-600 font-semibold;
+}
+
+.tab-button:disabled {
+    @apply text-gray-400 cursor-not-allowed hover:text-gray-400;
+}
+
+.tab-button .lock-icon {
+    display: none; /* Hide lock icon by default */
+}
+
+.tab-button:disabled .lock-icon {
+    @apply inline-block ml-2 text-gray-400; /* Show lock icon only on disabled tabs */
+}
+
+
+/* --- SKILL CARD STYLES --- */
+.skill-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200 cursor-pointer text-center h-full flex flex-col items-center justify-center;
+}
+
+.skill-card:hover {
+    transform: translateY(-5px);
+    @apply shadow-lg;
+}
+
+.skill-card.active {
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 2px #4f46e5;
+    @apply border-indigo-500;
+}
+
+
+/* --- CHART CONTAINER --- */
+.chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 300px;
+    max-height: 400px;
+}
+
+@media (min-width: 768px) {
+    .chart-container {
+        height: 350px;
+    }
+}
+
+
+/* --- AI LOADER --- */
+.loader {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #FFF;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
