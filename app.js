@@ -91,9 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <h2 class="text-2xl font-bold text-white mb-6">${title}</h2>
             <div class="max-w-4xl mx-auto">
                 <div class="text-gray-300 mb-6 leading-relaxed">${description}</div>
-                <textarea id="assignment-submission" class="w-full p-3 bg-primary-dark border border-border-color rounded-md mb-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500 text-white" rows="8" placeholder="Complete your assignment here..."></textarea>
+                <textarea id="assignment-submission" class="w-full p-3 bg-primary-dark border border-border-color rounded-md mb-4 focus:ring-2 focus:ring-accent-blue focus:border-accent-blue placeholder-gray-500 text-white" rows="8" placeholder="Complete your assignment here..."></textarea>
                 <div class="flex items-center justify-center gap-4 mb-6">
-                    <button id="submit-assignment-btn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-md transition-colors duration-200">Submit for AI Review</button>
+                    <button id="submit-assignment-btn" class="w-full sm:w-auto bg-accent-blue hover:bg-accent-blue-hover text-white font-bold py-3 px-8 rounded-md transition-colors duration-200 button-glow">Submit for AI Review</button>
                 </div>
                 <div id="feedback-area" class="bg-primary-dark p-4 rounded-md border border-border-color text-gray-300 min-h-[100px]">
                     <p class="text-gray-500">Your AI-generated score and feedback will appear here.</p>
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let resultHTML = score >= scoreThreshold ?
                 `<p class="font-bold text-green-400">Mission Passed! AI Score: ${score}/100.</p><p>You have unlocked the next module!</p>` :
                 `<p class="font-bold text-yellow-400">Mission Incomplete. AI Score: ${score}/100.</p><p>Please review the feedback, improve your submission, and try again.</p>`;
-            resultHTML += `<div class="mt-4 p-3 bg-secondary-dark rounded-md border border-border-color text-left"><h4 class="font-bold text-blue-400">AI Mentor's Feedback:</h4><div class="text-gray-300 whitespace-pre-wrap mt-2">${feedback}</div></div>`;
+            resultHTML += `<div class="mt-4 p-3 bg-secondary-dark rounded-md border border-border-color text-left"><h4 class="font-bold text-accent-blue">AI Mentor's Feedback:</h4><div class="text-gray-300 whitespace-pre-wrap mt-2">${feedback}</div></div>`;
             feedbackArea.innerHTML = resultHTML;
 
         } catch (error) {
@@ -173,60 +173,118 @@ document.addEventListener('DOMContentLoaded', () => {
             askAiBtn.innerHTML = `<span>Ask AI Co-Pilot</span>`;
         }
     };
-
     moduleNavigationContainer.addEventListener('click', (e) => { e.preventDefault(); const link = e.target.closest('.module-link'); if (link && !link.classList.contains('locked')) { changeModule(link.dataset.module); } });
     
     // --- OTHER FUNCTIONS ---
     const loadProgress = () => { const savedProgress = JSON.parse(localStorage.getItem('userProgress') || '{}'); appState.userProgress = savedProgress; Object.keys(modulesData).forEach(key => { if (typeof appState.userProgress[key] !== 'number') { appState.userProgress[key] = 0; } }); };
     const saveProgress = () => { localStorage.setItem('userProgress', JSON.stringify(appState.userProgress)); };
     const changeModule = (newModuleKey) => { if (newModuleKey === appState.currentModule) return; appState.currentModule = newModuleKey; appState.selectedSkill = null; mainContent.style.opacity = 0; setTimeout(() => { renderModuleNavigation(); renderContent(); mainContent.style.opacity = 1; }, 300); };
-    const initializeChart = (score) => { const ctx = document.getElementById('progressChart')?.getContext('2d'); if (!ctx) return; if (progressChart) progressChart.destroy(); Chart.defaults.color = '#A0A0A0'; Chart.defaults.borderColor = '#374151'; progressChart = new Chart(ctx, { type: 'bar', data: { labels: ['Mastery Level'], datasets: [{ label: 'Score', data: [score], backgroundColor: score >= 70 ? 'rgba(0, 123, 255, 0.5)' : 'rgba(209, 213, 219, 0.2)', borderColor: score >= 70 ? '#007BFF' : '#D1D5DB', borderWidth: 2, borderRadius: 5, }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100, grid: { color: '#374151' }, ticks: { color: '#D1D5DB' }, title: { display: true, text: 'Score (%)', color: '#D1D5DB' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } } }); };
-    const updateProgressChart = (score) => { if (!progressChart) { initializeChart(score); return; } progressChart.data.datasets[0].data[0] = score; progressChart.data.datasets[0].backgroundColor = score >= 70 ? 'rgba(0, 123, 255, 0.5)' : 'rgba(209, 213, 219, 0.2)'; progressChart.data.datasets[0].borderColor = score >= 70 ? '#007BFF' : '#D1D5DB'; progressChart.update(); };
+    const initializeChart = (score) => { const ctx = document.getElementById('progressChart')?.getContext('2d'); if (!ctx) return; if (progressChart) progressChart.destroy(); Chart.defaults.color = '#D1D5DB'; Chart.defaults.borderColor = '#374151'; progressChart = new Chart(ctx, { type: 'bar', data: { labels: ['Mastery Level'], datasets: [{ label: 'Score', data: [score], backgroundColor: score >= 70 ? 'rgba(59, 130, 246, 0.5)' : 'rgba(209, 213, 219, 0.2)', borderColor: score >= 70 ? '#3B82F6' : '#D1D5DB', borderWidth: 2, borderRadius: 5, }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100, grid: { color: '#374151' }, ticks: { color: '#D1D5DB' }, title: { display: true, text: 'Score (%)', color: '#D1D5DB' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } } }); };
+    const updateProgressChart = (score) => { if (!progressChart) { initializeChart(score); return; } progressChart.data.datasets[0].data[0] = score; progressChart.data.datasets[0].backgroundColor = score >= 70 ? 'rgba(59, 130, 246, 0.5)' : 'rgba(209, 213, 219, 0.2)'; progressChart.data.datasets[0].borderColor = score >= 70 ? '#3B82F6' : '#D1D5DB'; progressChart.update(); };
     
     function renderContent() {
         renderHeader();
-        const learningsContent = document.getElementById('learnings-content');
-        const skillGrid = document.getElementById('skill-grid');
+        const moduleContentSection = document.getElementById('module-content-section');
         const module = modulesData[appState.currentModule];
-        learningsContent.innerHTML = '';
-        if (module.learnings) module.learnings.forEach((learning, index) => { const card = document.createElement('div'); card.className = 'learning-card'; card.style.animationDelay = `${index * 100}ms`; card.innerHTML = `<h3 class="text-xl font-semibold mb-2 text-blue-400">${learning.title}</h3><p class="text-gray-400">${learning.description}</p>`; learningsContent.appendChild(card); });
-        skillGrid.innerHTML = '';
-        if(module.skills) Object.keys(module.skills).forEach((key, index) => { const card = document.createElement('div'); card.className = 'skill-card content-slide-up'; card.dataset.skillKey = key; card.style.animationDelay = `${index * 100}ms`; card.innerHTML = `<div class="text-4xl">${module.skills[key].icon}</div><h4 class="mt-2 font-semibold text-white">${module.skills[key].title}</h4>`; skillGrid.appendChild(card); });
-        const firstSkillKey = module.skills ? Object.keys(module.skills)[0] : null;
+        moduleContentSection.innerHTML = '';
+
+        if (module.subtopics) {
+            module.subtopics.forEach((subtopic, index) => {
+                const subtopicCard = document.createElement('div');
+                subtopicCard.className = 'subtopic-card mb-8';
+                subtopicCard.style.animationDelay = `${index * 100}ms`;
+
+                let skillsHTML = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">';
+                if (subtopic.skills) {
+                    Object.keys(subtopic.skills).forEach(key => {
+                        const skill = subtopic.skills[key];
+                        skillsHTML += `
+                            <div class="skill-card" data-skill-key="${key}">
+                                <span class="text-2xl">${skill.icon}</span>
+                                <span class="font-semibold text-white">${skill.title}</span>
+                            </div>
+                        `;
+                    });
+                }
+                skillsHTML += '</div>';
+
+                subtopicCard.innerHTML = `
+                    <h3 class="text-2xl font-bold text-white mb-4">${subtopic.title}</h3>
+                    <p class="text-gray-400 mb-4">${subtopic.description}</p>
+                    ${skillsHTML}
+                `;
+                moduleContentSection.appendChild(subtopicCard);
+            });
+        }
+        
+        const firstSkillKey = module.subtopics?.[0]?.skills ? Object.keys(module.subtopics[0].skills)[0] : null;
         appState.selectedSkill = firstSkillKey;
-        document.querySelector(`#skill-grid [data-skill-key="${appState.selectedSkill}"]`)?.classList.add('active');
-        renderSkillDetailsAndMaterials();
+        
+        document.querySelector(`.skill-card[data-skill-key="${appState.selectedSkill}"]`)?.classList.add('active');
+        
+        renderStudyMaterials();
         renderAssignment();
+
+        document.querySelectorAll('.skill-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const clickedCard = e.currentTarget;
+                appState.selectedSkill = clickedCard.dataset.skillKey;
+                document.querySelectorAll('.skill-card').forEach(c => c.classList.remove('active'));
+                clickedCard.classList.add('active');
+                renderStudyMaterials();
+            });
+        });
+        document.getElementById('ask-ai-btn').addEventListener('click', handleAskAI);
     }
 
-    function renderSkillDetailsAndMaterials() {
-        const skillDetails = document.getElementById('skill-details');
+    function renderStudyMaterials() {
         const studyMaterialsContent = document.getElementById('study-materials-content');
-        const skill = modulesData[appState.currentModule]?.skills?.[appState.selectedSkill];
-        if (!skill) { skillDetails.innerHTML = `<p class="text-gray-500 text-center">Select a skill.</p>`; studyMaterialsContent.parentElement.classList.add('hidden'); return; }
-        skillDetails.innerHTML = `<div class="content-fade-in w-full text-left"><h3 class="text-2xl font-bold mb-4 text-blue-400 flex items-center">${skill.icon} <span class="ml-3">${skill.title}</span></h3><div class="space-y-4"><div><h4 class="font-bold text-lg text-white">Meaning</h4><p class="text-gray-400 mt-1">${skill.meaning}</p></div><div><h4 class="font-bold text-lg text-white">Use Cases</h4><p class="text-gray-400 mt-1">${skill.useCases}</p></div></div></div>`;
-        const materials = modulesData[appState.currentModule]?.studyMaterials?.[appState.selectedSkill];
+        studyMaterialsContent.innerHTML = '';
         const container = studyMaterialsContent.parentElement;
-        if (!materials || materials.length === 0) { container.classList.add('hidden'); return; }
+        container.classList.add('hidden');
+
+        if (!appState.selectedSkill) return;
+
+        let materials = null;
+        let skillTitle = '';
+
+        modulesData[appState.currentModule].subtopics?.forEach(subtopic => {
+            if (subtopic.skills && subtopic.skills[appState.selectedSkill]) {
+                const skill = subtopic.skills[appState.selectedSkill];
+                materials = skill.studyMaterials;
+                skillTitle = skill.title;
+            }
+        });
+
+        if (!materials || materials.length === 0) return;
+        
         container.classList.remove('hidden');
-        let linksHTML = `<h2 class="text-2xl font-bold text-white mb-6">Deep Dive Resources: ${skill.title}</h2><div class="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">`;
-        materials.forEach(material => { linksHTML += `<a href="${material.url}" target="_blank" rel="noopener noreferrer" class="block bg-secondary-dark hover:bg-gray-800/50 p-4 rounded-lg transition-colors duration-200 text-blue-400 font-medium hover:text-blue-300 text-left flex items-center space-x-3 border border-border-color"><svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg><span>${material.title}</span></a>`; });
+        let linksHTML = `<h2 class="text-2xl font-bold text-white mb-6">Deep Dive Resources: ${skillTitle}</h2><div class="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">`;
+        materials.forEach(material => { linksHTML += `<a href="${material.url}" target="_blank" rel="noopener noreferrer" class="block bg-secondary-dark hover:bg-gray-800/50 p-4 rounded-lg transition-colors duration-200 text-accent-blue font-medium hover:text-blue-300 text-left flex items-center space-x-3 border border-border-color"><svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg><span>${material.title}</span></a>`; });
         linksHTML += `</div>`;
         studyMaterialsContent.innerHTML = linksHTML;
     }
     
-    document.getElementById('skill-grid').addEventListener('click', (e) => { const card = e.target.closest('.skill-card'); if(card && card.dataset.skillKey !== appState.selectedSkill) { appState.selectedSkill = card.dataset.skillKey; document.querySelectorAll('.skill-card').forEach(c => c.classList.remove('active')); card.classList.add('active'); renderSkillDetailsAndMaterials(); } });
-    document.getElementById('ask-ai-btn').addEventListener('click', handleAskAI);
-
-
     // --- FULL MODULE DATA & INITIALIZATION ---
-    Object.assign(modulesData.module1, { learnings: [ { title: "Intro to UX Design", description: "Understand the basics of UX design and the product development lifecycle." }, { title: "Core UX Concepts", description: "Familiarize yourself with essential UX terminology and frameworks like user-centered design." }], skills: { ux: { title: "User Experience (UX)", icon: "🎨", meaning: "The overall experience of a person using a product, especially in terms of how easy or pleasing it is to use.", useCases: "Applied to create intuitive apps, websites, and services." } }, studyMaterials: { ux: [{ title: "What is UX Design? by Google", url: "https://www.youtube.com/watch?v=c9Wg6Cb_YlU" }] }, assignment: { title: "Mission 1: The Usability Detective", description: "Choose a common object or app screen. Identify 3 specific usability issues. For each, propose a clear design improvement and explain your reasoning." } });
-    Object.assign(modulesData.module2, { learnings: [ { title: "Empathizing with Users", description: "Learn techniques to deeply understand user needs and motivations." }, { title: "Creating User Personas", description: "Develop fictional characters based on research to represent your target users." }], skills: { personas: { title: "User Personas", icon: "👤", meaning: "Fictional characters created to represent user types.", useCases: "Helps the team focus on a manageable cast of characters, instead of trying to design for everyone." } }, studyMaterials: { personas: [{ title: "How To Create User Personas", url: "https://www.youtube.com/watch?v=s-yv0LethsU" }] }, assignment: { title: "Mission 2: The Empathy Engine", description: "Create a user persona and an empathy map for a new language-learning app based on provided research notes." } });
-    Object.assign(modulesData.module3, { learnings: [ { title: "Wireframing", description: "Learn to create basic structural blueprints for your designs." }, { title: "Prototyping", description: "Build interactive, low-fidelity versions of your designs for early testing." }], skills: { wireframing: { title: "Wireframing", icon: "📝", meaning: "A basic visual guide that represents the skeletal framework of a website or app.", useCases: "Used early in design to lay out ideas and define page structure." } }, studyMaterials: { wireframing: [{ title: "Wireframing Tutorial for Beginners", url: "https://www.youtube.com/watch?v=Z5-4-vMa_1E" }] }, assignment: { title: "Mission 3: The Architect", description: "Create a 3-screen wireframe for a new mobile weather app." } });
-    Object.assign(modulesData.module4, { learnings: [ { title: "Usability Studies", description: "Learn how to plan and conduct effective usability tests." }, { title: "Synthesizing Research", description: "Analyze research data to find actionable insights." }], skills: { usability: { title: "Usability Testing", icon: "🧪", meaning: "Evaluating a product by testing it on representative users.", useCases: "Crucial for validating design decisions and identifying confusing elements." } }, studyMaterials: { usability: [{ title: "Usability Testing Explained", url: "https://www.youtube.com/watch?v=g6i3q4g-sV4" }] }, assignment: { title: "Mission 4: The User Whisperer", description: "Write a research plan for a usability study of a new e-commerce website." } });
-    Object.assign(modulesData.module5, { learnings: [ { title: "Visual Design Principles", description: "Understand hierarchy, balance, and contrast." }, { title: "Design Systems", description: "Learn how to create and use a consistent set of design components." }], skills: { designSystems: { title: "Design Systems", icon: "📚", meaning: "A set of standards, components, and guidelines that ensure design consistency.", useCases: "Used to maintain brand consistency and accelerate design and development workflows." } }, studyMaterials: { designSystems: [{ title: "What Is A Design System?", url: "https://www.youtube.com/watch?v=6DD-G8O-78U" }] }, assignment: { title: "Mission 5: The Visual Virtuoso", description: "Design a high-fidelity mockup for the home screen of a new music streaming app." } });
-    Object.assign(modulesData.module6, { learnings: [ { title: "Responsive Grids", description: "Learn how to design layouts that adapt to different screen sizes." }, { title: "Mobile-First Design", description: "Understand the strategy of designing for mobile before designing for desktop." }], skills: { responsive: { title: "Responsive Design", icon: "📱", meaning: "Designing web pages that look good on all devices.", useCases: "Crucial for modern web development to ensure optimal user experience across devices." } }, studyMaterials: { responsive: [{ title: "Responsive Design Tutorial", url: "https://www.youtube.com/watch?v=srvUrAS2_so" }] }, assignment: { title: "Mission 6: The Adaptable Architect", description: "Create a responsive design (mobile and desktop views) for a blog article page." } });
-    Object.assign(modulesData.module7, { learnings: [ { title: "Building a Case Study", description: "Learn how to tell a compelling story about your design process." }, { title: "Portfolio Presentation", description: "Prepare to present your work effectively in interviews." }], skills: { portfolio: { title: "UX Portfolio", icon: "💼", meaning: "A curated collection of a UX designer's best work.", useCases: "Essential for job applications, allowing designers to demonstrate their abilities to potential employers." } }, studyMaterials: { portfolio: [{ title: "How to Build a UX Portfolio", url: "https://www.youtube.com/watch?v=Z_M0_b1h_sQ" }] }, assignment: { title: "Mission 7: The Capstone", description: "Create a complete case study for one of the previous projects you completed in this course, ready to be added to your portfolio." } });
+    Object.assign(modulesData.module1, {
+        subtopics: [
+            { title: "Core Principles", description: "Understand the fundamental concepts that drive all great user experiences.", skills: { ux: { title: "User Experience (UX)", icon: "🎨", studyMaterials: [{ title: "Google's UX Design Course (Full)", url: "https://www.youtube.com/watch?v=c9Wg6Cb_YlU" }] } } },
+            { title: "User-Centric Thinking", description: "Learn to put the user at the center of your design process.", skills: { ucd: { title: "User-Centered Design", icon: "👥", studyMaterials: [{ title: "User Centered Design by NNGroup", url: "https://www.youtube.com/watch?v=s-yv0LethsU" }] } } }
+        ],
+        assignment: { title: "Mission 1: The Usability Detective", description: "Choose a common app on your phone. Identify 3 specific usability issues. For each, propose a clear design improvement and explain your reasoning." }
+    });
+    Object.assign(modulesData.module2, {
+        subtopics: [
+            { title: "Understanding the User", description: "Master techniques for deeply understanding user needs and motivations.", skills: { personas: { title: "User Personas", icon: "👤", studyMaterials: [{ title: "How To Create User Personas", url: "https://www.youtube.com/watch?v=s-yv0LethsU" }] } } },
+            { title: "Defining the Problem", description: "Learn to formulate clear problem statements that will guide your design solutions.", skills: { problemStatements: { title: "Problem Statements", icon: "❓", studyMaterials: [{ title: "How to Write a Problem Statement", url: "https://www.youtube.com/watch?v=1g71Q13cM00" }] } } }
+        ],
+        assignment: { title: "Mission 2: The Empathy Engine", description: "Create a user persona and an empathy map for a new language-learning app based on provided research notes." }
+    });
+    Object.assign(modulesData.module3, { subtopics: [ { title: "Structuring Content", description: "Learn to create basic structural blueprints for your designs.", skills: { wireframing: { title: "Wireframing", icon: "📝", studyMaterials: [{ title: "Figma Wireframing Tutorial", url: "https://www.youtube.com/watch?v=Z5-4-vMa_1E" }] } } } ], assignment: { title: "Mission 3: The Architect", description: "Create a 3-screen wireframe for a new mobile weather app." } });
+    Object.assign(modulesData.module4, { subtopics: [ { title: "Gathering Feedback", description: "Learn how to plan and conduct effective usability tests.", skills: { usability: { title: "Usability Testing", icon: "🧪", studyMaterials: [{ title: "Usability Testing Explained", url: "https://www.youtube.com/watch?v=g6i3q4g-sV4" }] } } } ], assignment: { title: "Mission 4: The User Whisperer", description: "Write a research plan for a usability study of a new e-commerce website." } });
+    Object.assign(modulesData.module5, { subtopics: [ { title: "Visual Polish", description: "Understand hierarchy, balance, and contrast to create beautiful interfaces.", skills: { designSystems: { title: "Design Systems", icon: "📚", studyMaterials: [{ title: "Design Systems 101", url: "https://www.youtube.com/watch?v=6DD-G8O-78U" }] } } } ], assignment: { title: "Mission 5: The Visual Virtuoso", description: "Design a high-fidelity mockup for the home screen of a new music streaming app." } });
+    Object.assign(modulesData.module6, { subtopics: [ { title: "Designing for All Screens", description: "Learn how to design layouts that adapt to different screen sizes.", skills: { responsive: { title: "Responsive Design", icon: "📱", studyMaterials: [{ title: "Responsive Design Tutorial", url: "https://www.youtube.com/watch?v=srvUrAS2_so" }] } } } ], assignment: { title: "Mission 6: The Adaptable Architect", description: "Create a responsive design (mobile and desktop views) for a blog article page." } });
+    Object.assign(modulesData.module7, { subtopics: [ { title: "Showcasing Your Work", description: "Learn how to tell a compelling story about your design process in a case study.", skills: { portfolio: { title: "UX Portfolio", icon: "💼", studyMaterials: [{ title: "How to Build a Powerful UX Portfolio", url: "https://www.youtube.com/watch?v=Z_M0_b1h_sQ" }] } } } ], assignment: { title: "Mission 7: The Capstone", description: "Create a complete case study for one of the previous projects you completed in this course, ready to be added to your portfolio." } });
 
     const init = () => { loadProgress(); renderModuleNavigation(); renderContent(); setTimeout(() => { mainContent.style.opacity = 1; }, 100); };
     
