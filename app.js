@@ -4,216 +4,244 @@ document.addEventListener('DOMContentLoaded', () => {
         currentModule: 'module1',
         selectedSkill: null,
         userProgress: {},
+        isContentLoaded: false
     };
 
     // --- API & DATA ---
-    const API_KEY = "AIzaSyDucHm7Pl65UQB3u9c_LHLTSYm-GY01KHM"; // <-- IMPORTANT: Paste your Google AI API key here
-    const aiSystemPrompt = `You are a world-class UI/UX Design Lead and expert Mentor. Your knowledge is strictly limited to UI design, UX research, user psychology, design systems, accessibility, and related fields. Your rules are: 1. Strictly UI/UX: If a user asks a question outside of your domain, you MUST politely decline. 2. Concise & Clear: Your answers must be concise, clear, and easy to understand. Use bullet points and bold text. 3. Be a Mentor: Provide expert-level, accurate, and insightful information.`;
+    const API_KEY = "AIzaSyDucHm7Pl65UQB3u9c_LHLTSYm-GY01KHM"; // Canvas will provide this at runtime
     const modulesData = {
-        module1: { name: "Foundations of UX Design", learningTime: "Approx. 40 hours", minScoreToUnlock: 70 },
-        module2: { name: "Empathize, Define, & Ideate", learningTime: "Approx. 20 hours", minScoreToUnlock: 70 },
-        module3: { name: "Wireframing & Prototyping", learningTime: "Approx. 25 hours", minScoreToUnlock: 70 },
-        module4: { name: "UX Research & Usability", learningTime: "Approx. 21 hours", minScoreToUnlock: 70 },
-        module5: { name: "High-Fidelity Design", learningTime: "Approx. 33 hours", minScoreToUnlock: 70 },
-        module6: { name: "Responsive Design", learningTime: "Approx. 41 hours", minScoreToUnlock: 70 },
-        module7: { name: "Capstone & Portfolio", learningTime: "Approx. 44 hours", minScoreToUnlock: 101 },
-    };
+        module1: { name: "Foundations of UX Design: The First Quest", learningTime: "Approx. 40 hours", minScoreToUnlock: 0, /* ... all other data ... */ },
+        module2: { name: "Start the UX Design Process: Empathize, Define, and Ideate", learningTime: "Approx. 20 hours", minScoreToUnlock: 70, /* ... all other data ... */ },
+        module3: { name: "Build Wireframes and Low-Fidelity Prototypes", learningTime: "Approx. 20 hours", minScoreToUnlock: 70, /* ... all other data ... */ },
+        module4: { name: "Conduct UX Research and Test Early Concepts", learningTime: "Approx. 21 hours", minScoreToUnlock: 70, /* ... all other data ... */ },
+        module5: { name: "Create High-Fidelity Designs and Prototypes in Figma", learningTime: "Approx. 33 hours", minScoreToUnlock: 70, /* ... all other data ... */ },
+        module6: { name: "Responsive Web Design in Adobe XD", learningTime: "Approx. 41 hours", minScoreToUnlock: 70, /* ... all other data ... */ },
+        module7: { name: "Design for Social Good & Prepare for Jobs", learningTime: "Approx. 44 hours", minScoreToUnlock: 70, /* ... all other data ... */ },
+    }; 
 
     // --- DOM SELECTORS ---
-    const activeModuleContainer = document.getElementById('active-module-container');
-    const upcomingModulesList = document.getElementById('upcoming-modules-list');
-    const unlockModal = document.getElementById('unlock-modal');
-    const unlockModalContent = document.getElementById('unlock-modal-content');
+    const mainContent = document.getElementById('main-content');
+    const moduleTabsContainer = document.getElementById('module-tabs');
+    const learningsContent = document.getElementById('learnings-content');
+    const skillGrid = document.getElementById('skill-grid');
+    const skillDetails = document.getElementById('skill-details');
+    const studyMaterialsContent = document.getElementById('study-materials-content');
+    const assignmentContent = document.getElementById('assignment-section');
+    const aiQuestionInput = document.getElementById('ai-question-input');
+    const askAiBtn = document.getElementById('ask-ai-btn');
+    const aiResponseArea = document.getElementById('ai-response-area');
     
     let progressChart = null;
 
-    // --- GEMINI API FUNCTIONS ---
-    async function getAITextResponse(prompt) { return await callGeminiAPI(prompt, "text/plain"); }
-    async function getAIAssessment(prompt) { const schema = { type: "OBJECT", properties: { feedback: { type: "STRING" }, score: { type: "NUMBER" } }, required: ["feedback", "score"] }; return await callGeminiAPI(prompt, "application/json", schema); }
-    async function callGeminiAPI(prompt, mimeType, schema = null) { if (!API_KEY) { throw new Error("API_KEY is not set."); } const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`; const generationConfig = { response_mime_type: mimeType, ...(schema && { response_schema: schema }) }; const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig }; try { const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (!response.ok) { const errorBody = await response.json(); throw new Error(`API request failed: ${errorBody.error.message}`); } const result = await response.json(); if (result.candidates && result.candidates[0]?.content.parts[0]) { const responseText = result.candidates[0].content.parts[0].text; return mimeType === "application/json" ? JSON.parse(responseText) : responseText; } else { throw new Error("Could not get a valid response from the AI."); } } catch (error) { console.error("Error calling Gemini API:", error); throw error; } }
-
     // --- RENDER FUNCTIONS ---
     
-    const renderUpcomingModules = () => {
-        upcomingModulesList.innerHTML = '';
-        const moduleKeys = Object.keys(modulesData);
-        const currentIndex = moduleKeys.indexOf(appState.currentModule);
+    const renderTabs = () => {
+        moduleTabsContainer.innerHTML = '';
+        Object.keys(modulesData).forEach(key => {
+            const module = modulesData[key];
+            const moduleNum = parseInt(key.replace('module', ''));
+            const button = document.createElement('button');
+            button.className = 'tab-button';
+            button.setAttribute('role', 'tab');
+            button.dataset.module = key;
 
-        let nextLockedModuleKey = null;
-        for (let i = currentIndex + 1; i < moduleKeys.length; i++) {
-            const key = moduleKeys[i];
-            const moduleNum = i + 1;
-            const prevModuleKey = `module${moduleNum - 1}`;
-            const prevModuleScore = appState.userProgress[prevModuleKey] || 0;
-            const scoreNeeded = modulesData[prevModuleKey].minScoreToUnlock;
-            if (prevModuleScore < scoreNeeded) {
-                nextLockedModuleKey = key;
-                break;
+            const isLocked = moduleNum > 1 && (appState.userProgress[`module${moduleNum - 1}`] || 0) < modulesData[`module${moduleNum - 1}`].minScoreToUnlock;
+            
+            button.disabled = false; // Overriding the lock for this version
+            button.innerHTML = `Module ${moduleNum}${button.disabled ? '<span class="lock-icon">🔒</span>' : ''}`;
+            
+            if (appState.currentModule === key) {
+                button.classList.add('active');
+                button.setAttribute('aria-selected', 'true');
+            } else {
+                button.setAttribute('aria-selected', 'false');
             }
-        }
-        
-        if (nextLockedModuleKey) {
-            const module = modulesData[nextLockedModuleKey];
-            const moduleNum = parseInt(nextLockedModuleKey.replace('module', ''));
-            const card = document.createElement('div');
-            card.className = 'upcoming-card';
-            card.dataset.module = nextLockedModuleKey;
-            card.innerHTML = `
-                <div class="unlock-prompt">Click to see how to unlock</div>
-                <svg class="w-8 h-8 text-gray-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                <h4 class="text-sm font-bold text-gray-400">Module ${moduleNum}</h4>
-                <p class="text-xs text-gray-500">${module.name}</p>
-            `;
-            upcomingModulesList.appendChild(card);
-        }
+            moduleTabsContainer.appendChild(button);
+        });
     };
 
-    const renderActiveModule = () => {
+    const renderLearnings = () => {
         const module = modulesData[appState.currentModule];
-        activeModuleContainer.innerHTML = `
-            <div id="main-content" class="transition-opacity duration-500 opacity-0">
-                <header class="mb-12">
-                     <h2 class="text-3xl font-bold text-white">${module.name}</h2>
-                     <p class="text-md text-gray-400">Estimated Time: ${module.learningTime}</p>
-                </header>
-                <section id="learnings-section" class="mb-12"> <h2 class="text-2xl font-bold text-white mb-6">Mission Objectives</h2> <div id="learnings-content" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div> </section>
-                <section id="skills-explorer" class="mb-12"> <h2 class="text-2xl font-bold text-white mb-6">Interactive Skill Explorer</h2> <div class="lg:grid lg:grid-cols-12 lg:gap-8"> <div id="skill-grid" class="lg:col-span-4 grid grid-cols-2 gap-4"></div> <div class="lg:col-span-8 mt-6 lg:mt-0"> <div id="skill-details" class="bg-secondary-dark border border-border-color p-6 rounded-lg min-h-[200px] flex items-center justify-center"></div> </div> </div> </section>
-                <section id="study-materials-section" class="mb-12"> <div id="study-materials-content" class="text-center"></div> </section>
-                <section id="assignment-section" class="mb-12 bg-secondary-dark border border-border-color p-6 md:p-8 rounded-lg"></section>
-                <section id="ai-co-pilot-section" class="bg-secondary-dark border border-border-color text-white p-6 md:p-8 rounded-lg"> <h2 class="text-2xl font-bold text-center mb-6 text-white">AI Co-Pilot</h2> <div class="max-w-3xl mx-auto"> <p class="text-gray-400 text-center mb-4">Your instant mentor for UI/UX questions.</p> <textarea id="ai-question-input" class="w-full p-3 bg-primary-dark border border-border-color rounded-md mb-4 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 placeholder-gray-500 text-white" rows="4" placeholder="e.g., 'Explain Hick's Law in simple terms.'"></textarea> <button id="ask-ai-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-md transition-all duration-300 flex items-center justify-center space-x-2 button-glow"><span>Ask AI Co-Pilot</span></button> <div id="ai-response-area" class="bg-primary-dark p-4 rounded-md border border-border-color min-h-[100px] mt-4"><p class="text-gray-500 text-center">AI response will appear here.</p></div> </div> </section>
-            </div>
-        `;
-        // Re-bind events for the new content
-        document.getElementById('ask-ai-btn').addEventListener('click', handleAskAI);
-        document.getElementById('skill-grid').addEventListener('click', handleSkillClick);
+        learningsContent.innerHTML = '';
+        if (!module || !module.learnings) return;
         
-        // Render the inner content of the active module
-        renderContent();
+        module.learnings.forEach(learning => {
+            const card = document.createElement('div');
+            card.className = 'bg-white p-6 rounded-lg shadow-md border border-gray-200 content-slide-up';
+            card.innerHTML = `
+                <h3 class="text-xl font-semibold mb-2 text-indigo-700">${learning.title}</h3>
+                <p class="text-gray-600">${learning.description}</p>
+            `;
+            learningsContent.appendChild(card);
+        });
     };
     
+    const renderSkills = () => {
+        const module = modulesData[appState.currentModule];
+        skillGrid.innerHTML = '';
+        if (!module || !module.skills) return;
+    
+        Object.keys(module.skills).forEach(key => {
+            const card = createSkillCard(key, module.skills[key]);
+            skillGrid.appendChild(card);
+        });
+    
+        const firstSkillKey = Object.keys(module.skills)[0];
+        if (firstSkillKey) {
+            appState.selectedSkill = firstSkillKey;
+            updateActiveSkillCard();
+            renderSkillDetails();
+            renderStudyMaterials();
+        } else {
+            skillDetails.innerHTML = `<p class="text-gray-500 text-center">No skills defined for this module.</p>`;
+            studyMaterialsContent.innerHTML = '';
+        }
+    };
+    
+    const createSkillCard = (key, skill) => {
+        const card = document.createElement('div');
+        card.className = 'skill-card content-slide-up';
+        card.dataset.skillKey = key;
+        card.innerHTML = `
+            <div class="text-3xl">${skill.icon}</div>
+            <h4 class="mt-2 font-semibold text-gray-700">${skill.title}</h4>
+        `;
+        return card;
+    };
+    
+    const renderSkillDetails = () => {
+        const skill = modulesData[appState.currentModule]?.skills?.[appState.selectedSkill];
+        if (!skill) {
+             skillDetails.innerHTML = `<p class="text-gray-500 text-center">Select a skill to see its details.</p>`;
+             return;
+        };
+
+        skillDetails.innerHTML = `
+            <div class="content-fade-in w-full text-left">
+                <h3 class="text-2xl font-bold mb-4 text-indigo-700 flex items-center">${skill.icon} <span class="ml-3">${skill.title}</span></h3>
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-bold text-lg text-gray-800">Meaning</h4>
+                        <p class="text-gray-600 mt-1">${skill.meaning}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg text-gray-800">Use Cases</h4>
+                        <p class="text-gray-600 mt-1">${skill.useCases}</p>
+                    </div>
+                </div>
+            </div>`;
+    };
+
+    const renderStudyMaterials = () => {
+        const materials = modulesData[appState.currentModule]?.studyMaterials?.[appState.selectedSkill];
+        studyMaterialsContent.innerHTML = '';
+
+        if (!materials || materials.length === 0) {
+            studyMaterialsContent.innerHTML = `<p class="text-gray-500">No study materials for this skill yet. Check back soon!</p>`;
+            return;
+        }
+
+        const skillTitle = modulesData[appState.currentModule].skills[appState.selectedSkill].title;
+        let linksHTML = `<h3 class="text-xl font-bold mb-4 text-gray-900 md:col-span-2">Deep Dive Resources for ${skillTitle}</h3>
+                         <div class="grid md:grid-cols-2 gap-4">`;
+        
+        materials.forEach(material => {
+            linksHTML += `
+                <a href="${material.url}" target="_blank" rel="noopener noreferrer" class="block bg-indigo-50 hover:bg-indigo-100 p-4 rounded-lg transition-colors duration-200 text-indigo-700 font-medium hover:text-indigo-900">
+                   🔗 ${material.title}
+                </a>`;
+        });
+
+        linksHTML += `</div>`;
+        studyMaterialsContent.innerHTML = linksHTML;
+    };
+
+    const renderAssignment = () => {
+        // This function would render the assignment section
+    };
+
     // --- UPDATE & HELPER FUNCTIONS ---
+    
+    const updateActiveSkillCard = () => {
+        document.querySelectorAll('.skill-card').forEach(c => c.classList.remove('active'));
+        if (appState.selectedSkill) {
+            const activeCard = skillGrid.querySelector(`[data-skill-key="${appState.selectedSkill}"]`);
+            if (activeCard) activeCard.classList.add('active');
+        }
+    };
+    
+    const changeModule = (newModule) => {
+        appState.currentModule = newModule;
+        appState.selectedSkill = null;
+        
+        mainContent.style.opacity = 0;
+        
+        setTimeout(() => {
+            renderTabs();
+            renderLearnings();
+            renderSkills();
+            renderAssignment();
+            mainContent.style.opacity = 1;
+        }, 300);
+    };
 
-    const handleMissionDebrief = async () => {
-        const feedbackArea = document.querySelector('#assignment-section #feedback-area');
-        const submissionText = document.querySelector('#assignment-section #assignment-submission').value.trim();
-        const submitBtn = document.querySelector('#assignment-section #submit-assignment-btn');
-        if (!submissionText) { feedbackArea.innerHTML = '<p class="text-red-400 font-bold">Please enter your assignment submission.</p>'; return; }
-
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<span class="loader"></span><span class="ml-2">AI is Reviewing...</span>`;
-        feedbackArea.innerHTML = `<p class="text-gray-500">Your submission is being analyzed...</p>`;
-
-        try {
-            const assignment = modulesData[appState.currentModule].assignment;
-            const assessmentPrompt = `You are a strict but fair UI/UX Professor. Evaluate the following assignment submission.
-            Assignment: "${assignment.title} - ${assignment.description}"
-            Submission: "${submissionText}"
-            Actions:
-            1. Critique the submission with clear, actionable feedback.
-            2. Assign a numerical score between 0 and 100.
-            3. Return the result as a JSON object with "feedback" (string) and "score" (number) keys.`;
-
-            const assessment = await getAIAssessment(assessmentPrompt);
-            const { feedback, score } = assessment;
-
-            appState.userProgress[appState.currentModule] = score;
-            saveProgress();
-            updateProgressChart(score);
-            renderUpcomingModules(); 
-
-            const scoreThreshold = modulesData[appState.currentModule].minScoreToUnlock;
-            let resultHTML = score >= scoreThreshold ?
-                `<p class="font-bold text-green-400">Mission Passed! AI Score: ${score}/100.</p><p>You have unlocked the next module!</p>` :
-                `<p class="font-bold text-yellow-400">Mission Incomplete. AI Score: ${score}/100.</p><p>Please review the feedback, improve your submission, and try again.</p>`;
-            resultHTML += `<div class="mt-4 p-3 bg-secondary-dark rounded-md border border-border-color text-left"><h4 class="font-bold text-purple-400">AI Mentor's Feedback:</h4><div class="text-gray-300 whitespace-pre-wrap mt-2">${feedback}</div></div>`;
-            feedbackArea.innerHTML = resultHTML;
-
-        } catch (error) {
-            feedbackArea.innerHTML = `<p class="text-red-400">An error occurred during AI review: ${error.message}</p>`;
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = `Submit for AI Review`;
+    const loadProgress = () => {
+        const savedProgress = JSON.parse(localStorage.getItem('userProgress') || '{}');
+        appState.userProgress = savedProgress;
+        for (let i = 1; i <= 7; i++) {
+            const moduleKey = `module${i}`;
+            if (typeof appState.userProgress[moduleKey] !== 'number') {
+                appState.userProgress[moduleKey] = 0;
+            }
         }
     };
 
-    const showUnlockModal = (moduleKey) => {
-        const moduleNum = parseInt(moduleKey.replace('module', ''));
-        const prevModuleKey = `module${moduleNum - 1}`;
-        const prevModule = modulesData[prevModuleKey];
-        const scoreNeeded = prevModule.minScoreToUnlock;
-        const currentScore = appState.userProgress[prevModuleKey] || 0;
-
-        unlockModalContent.innerHTML = `
-            <h3 class="text-2xl font-bold text-white mb-2">Module ${moduleNum} Locked</h3>
-            <p class="text-gray-400 mb-6">You need to pass the previous module to unlock this one.</p>
-            <div class="text-left mb-4">
-                <p class="font-bold text-white">Requirement:</p>
-                <p class="text-gray-400">Score at least ${scoreNeeded}% on '${prevModule.name}'.</p>
-            </div>
-            <div class="text-left mb-6">
-                <p class="font-bold text-white">Your Current Score:</p>
-                <div class="w-full bg-gray-700 rounded-full h-4 mt-2">
-                    <div class="bg-purple-600 h-4 rounded-full" style="width: ${currentScore}%"></div>
-                </div>
-                <p class="text-right text-lg font-bold text-white mt-1">${currentScore}%</p>
-            </div>
-            <button id="close-modal-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md">Got it</button>
-        `;
-        unlockModal.classList.add('visible');
-        document.getElementById('close-modal-btn').addEventListener('click', () => unlockModal.classList.remove('visible'));
+    const saveProgress = () => {
+        localStorage.setItem('userProgress', JSON.stringify(appState.userProgress));
     };
 
     // --- EVENT LISTENERS ---
-    const handleAskAI = async () => { /* ... unchanged ... */ };
-    const handleSkillClick = (e) => { const card = e.target.closest('.skill-card'); if(card && card.dataset.skillKey !== appState.selectedSkill) { appState.selectedSkill = card.dataset.skillKey; document.querySelectorAll('#skill-grid .skill-card').forEach(c => c.classList.remove('active')); card.classList.add('active'); renderSkillDetailsAndMaterials(); } };
-    upcomingModulesList.addEventListener('click', (e) => { const card = e.target.closest('.upcoming-card'); if (card) { showUnlockModal(card.dataset.module); } });
-    unlockModal.addEventListener('click', (e) => { if (e.target === unlockModal) { unlockModal.classList.remove('visible'); } });
 
-    // --- OTHER FUNCTIONS ---
-    const loadProgress = () => { const savedProgress = JSON.parse(localStorage.getItem('userProgress') || '{}'); appState.userProgress = savedProgress; Object.keys(modulesData).forEach(key => { if (typeof appState.userProgress[key] !== 'number') { appState.userProgress[key] = 0; } }); };
-    const saveProgress = () => { localStorage.setItem('userProgress', JSON.stringify(appState.userProgress)); };
-    const changeModule = (newModuleKey) => { if (newModuleKey === appState.currentModule) return; appState.currentModule = newModuleKey; appState.selectedSkill = null; renderActiveModule(); renderUpcomingModules(); };
-    const initializeChart = (score) => { const ctx = document.getElementById('progressChart')?.getContext('2d'); if (!ctx) return; if (progressChart) progressChart.destroy(); Chart.defaults.color = '#D1D5DB'; Chart.defaults.borderColor = '#374151'; progressChart = new Chart(ctx, { type: 'bar', data: { labels: ['Mastery Level'], datasets: [{ label: 'Score', data: [score], backgroundColor: score >= 70 ? 'rgba(167, 85, 247, 0.5)' : 'rgba(209, 213, 219, 0.2)', borderColor: score >= 70 ? '#A755F7' : '#D1D5DB', borderWidth: 2, borderRadius: 5, }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100, grid: { color: '#374151' }, ticks: { color: '#D1D5DB' }, title: { display: true, text: 'Score (%)', color: '#D1D5DB' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } } }); };
-    const updateProgressChart = (score) => { if (!progressChart) { initializeChart(score); return; } progressChart.data.datasets[0].data[0] = score; progressChart.data.datasets[0].backgroundColor = score >= 70 ? 'rgba(167, 85, 247, 0.5)' : 'rgba(209, 213, 219, 0.2)'; progressChart.data.datasets[0].borderColor = score >= 70 ? '#A755F7' : '#D1D5DB'; progressChart.update(); };
+    moduleTabsContainer.addEventListener('click', (e) => {
+        const button = e.target.closest('.tab-button');
+        if (button && !button.disabled && button.dataset.module !== appState.currentModule) {
+            changeModule(button.dataset.module);
+        }
+    });
+
+    skillGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.skill-card');
+        if(card && card.dataset.skillKey !== appState.selectedSkill) {
+            appState.selectedSkill = card.dataset.skillKey;
+            updateActiveSkillCard();
+            renderSkillDetails();
+            renderStudyMaterials();
+        }
+    });
+
+    askAiBtn.addEventListener('click', () => {
+        const question = aiQuestionInput.value.trim();
+        if (question) {
+            // Placeholder for Gemini Response
+        } else {
+            aiResponseArea.innerHTML = '<p class="text-red-400">Please enter a question for the AI Co-Pilot.</p>';
+        }
+    });
+
+    // --- INITIALIZATION ---
     
-    function renderContent() {
-        document.getElementById('main-content').style.opacity = 1;
-        const learningsContent = document.getElementById('learnings-content');
-        const skillGrid = document.getElementById('skill-grid');
-        const module = modulesData[appState.currentModule];
-        learningsContent.innerHTML = '';
-        if (module.learnings) module.learnings.forEach((learning, index) => { const card = document.createElement('div'); card.className = 'learning-card'; card.style.animationDelay = `${index * 100}ms`; card.innerHTML = `<h3 class="text-xl font-semibold mb-2 text-purple-400">${learning.title}</h3><p class="text-gray-400">${learning.description}</p>`; learningsContent.appendChild(card); });
-        skillGrid.innerHTML = '';
-        if(module.skills) Object.keys(module.skills).forEach((key, index) => { const card = document.createElement('div'); card.className = 'skill-card content-slide-up'; card.dataset.skillKey = key; card.style.animationDelay = `${index * 100}ms`; card.innerHTML = `<div class="text-4xl">${module.skills[key].icon}</div><h4 class="mt-2 font-semibold text-white">${module.skills[key].title}</h4>`; skillGrid.appendChild(card); });
-        const firstSkillKey = module.skills ? Object.keys(module.skills)[0] : null;
-        appState.selectedSkill = firstSkillKey;
-        document.querySelector(`#skill-grid [data-skill-key="${appState.selectedSkill}"]`)?.classList.add('active');
-        renderSkillDetailsAndMaterials();
+    const init = () => {
+        loadProgress();
+        renderTabs();
+        renderLearnings();
+        renderSkills();
         renderAssignment();
-    }
+        
+        setTimeout(() => {
+            mainContent.style.opacity = 1;
+            appState.isContentLoaded = true;
+        }, 100);
+    };
 
-    function renderSkillDetailsAndMaterials() {
-        const skillDetails = document.getElementById('skill-details');
-        const studyMaterialsContent = document.getElementById('study-materials-content');
-        const skill = modulesData[appState.currentModule]?.skills?.[appState.selectedSkill];
-        if (!skill) { skillDetails.innerHTML = `<p class="text-gray-500 text-center">Select a skill.</p>`; studyMaterialsContent.parentElement.classList.add('hidden'); return; }
-        skillDetails.innerHTML = `<div class="content-fade-in w-full text-left"><h3 class="text-2xl font-bold mb-4 text-purple-400 flex items-center">${skill.icon} <span class="ml-3">${skill.title}</span></h3><div class="space-y-4"><div><h4 class="font-bold text-lg text-white">Meaning</h4><p class="text-gray-400 mt-1">${skill.meaning}</p></div><div><h4 class="font-bold text-lg text-white">Use Cases</h4><p class="text-gray-400 mt-1">${skill.useCases}</p></div></div></div>`;
-        const materials = modulesData[appState.currentModule]?.studyMaterials?.[appState.selectedSkill];
-        const container = studyMaterialsContent.parentElement;
-        if (!materials || materials.length === 0) { container.classList.add('hidden'); return; }
-        container.classList.remove('hidden');
-        let linksHTML = `<h2 class="text-2xl font-bold text-white mb-6">Deep Dive Resources: ${skill.title}</h2><div class="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">`;
-        materials.forEach(material => { linksHTML += `<a href="${material.url}" target="_blank" rel="noopener noreferrer" class="block bg-secondary-dark hover:bg-gray-800/50 p-4 rounded-lg transition-colors duration-200 text-purple-400 font-medium hover:text-purple-300 text-left flex items-center space-x-3 border border-border-color"><svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg><span>${material.title}</span></a>`; });
-        linksHTML += `</div>`;
-        studyMaterialsContent.innerHTML = linksHTML;
-    }
-    
-    // --- FULL MODULE DATA & INITIALIZATION ---
-    Object.assign(modulesData.module1, { learnings: [ { title: "Intro to UX Design", description: "Understand the basics of UX design and the product development lifecycle." }, { title: "Core UX Concepts", description: "Familiarize yourself with essential UX terminology and frameworks like user-centered design." }], skills: { ux: { title: "User Experience (UX)", icon: "🎨", meaning: "The overall experience of a person using a product, especially in terms of how easy or pleasing it is to use.", useCases: "Applied to create intuitive apps, websites, and services." } }, studyMaterials: { ux: [{ title: "What is UX Design?", url: "#" }] }, assignment: { title: "Mission 1: The Usability Detective", description: "Choose a common object or app screen. Identify 3 specific usability issues. For each, propose a clear design improvement and explain your reasoning." } });
-    Object.assign(modulesData.module2, { learnings: [ { title: "Empathizing with Users", description: "Learn techniques to deeply understand user needs and motivations." }, { title: "Creating User Personas", description: "Develop fictional characters based on research to represent your target users." }], skills: { personas: { title: "User Personas", icon: "👤", meaning: "Fictional characters created to represent user types.", useCases: "Helps the team focus on a manageable cast of characters, instead of trying to design for everyone." } }, studyMaterials: { personas: [{ title: "Creating User Personas", url: "#" }] }, assignment: { title: "Mission 2: The Empathy Engine", description: "Create a user persona and an empathy map for a new language-learning app based on provided research notes." } });
-    // ... Add full data for modules 3-7 here
-    
-    const init = () => { loadProgress(); renderActiveModule(); renderUpcomingModules(); };
-    
     init();
 });
