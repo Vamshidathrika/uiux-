@@ -12,69 +12,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_KEY = "AIzaSyDucHm7Pl65UQB3u9c_LHLTSYm-GY01KHMv"; // <-- IMPORTANT: Paste your Google AI API key here
 
     // This prompt defines the AI's personality and rules for the general Q&A Co-Pilot.
-    const aiSystemPrompt = `You are a world-class UI/UX Design Lead and expert Mentor. Your knowledge is strictly limited to UI design, UX research, user psychology, design systems, accessibility, and related fields. 
-    
-    Your rules are:
-    1.  **Strictly UI/UX:** If a user asks a question outside of your domain (e.g., about history, general coding, or random facts), you MUST politely decline, stating that your expertise is focused on UI/UX design.
-    2.  **Concise & Clear:** Your answers must be concise, clear, and easy to understand. Use bullet points, **bold text** for key terms, and simple language.
-    3.  **Be a Mentor:** Provide expert-level, accurate, and insightful information. Your goal is to teach and guide.`;
+    const aiSystemPrompt = `You are a world-class UI/UX Design Lead and expert Mentor. Your knowledge is strictly limited to UI design, UX research, user psychology, design systems, accessibility, and related fields. Your rules are: 1. Strictly UI/UX: If a user asks a question outside of your domain, you MUST politely decline. 2. Concise & Clear: Your answers must be concise, clear, and easy to understand. Use bullet points and bold text. 3. Be a Mentor: Provide expert-level, accurate, and insightful information.`;
 
     // This object contains all the content for the learning hub.
     const modulesData = {
-        module1: {
-            name: "Foundations of UX Design",
-            learningTime: "Approx. 40 hours",
-            minScoreToUnlock: 70, // Score needed to unlock module 2
-            learnings: [
-                { title: "Introducing User Experience Design", description: "Understand the basics of UX design, its characteristics, and the product development lifecycle." },
-                { title: "Common Terms, Tools, & Frameworks", description: "Familiarize yourself with essential UX terminology and design frameworks like user-centered design." },
-                { title: "Joining Design Sprints", description: "Learn about the phases of a design sprint and how to plan and participate in one." },
-            ],
-            skills: {
-                userExperienceDesign: { title: "User Experience (UX) Design", icon: "🎨", meaning: "The process of enhancing user satisfaction by improving the usability, accessibility, and pleasure provided in the interaction between the user and a product.", useCases: "Involves information architecture, interaction design, visual design, and usability to create intuitive apps and websites." },
-                userCenteredDesign: { title: "User-Centered Design", icon: "👥", meaning: "An approach that prioritizes the user's needs, behaviors, and motivations throughout the entire design process.", useCases: "Applied in every stage of product development, from conducting user interviews to using A/B testing, ensuring the final product truly solves user problems." },
-                designThinking: { title: "Design Thinking", icon: "💡", meaning: "A non-linear, iterative process to understand users, challenge assumptions, redefine problems, and create innovative solutions.", useCases: "Applied to tackle complex problems by encouraging creative, human-centered solutions through its five phases: Empathize, Define, Ideate, Prototype, and Test." },
-            },
-            studyMaterials: {
-                userExperienceDesign: [ { title: "What is UX Design? (Google)", url: "https://www.youtube.com/watch?v=f2K9hX2_0-Q" }, { title: "UX Design in 100 Seconds", url: "https://www.youtube.com/watch?v=Ovj4hFxko7c" } ],
-                userCenteredDesign: [ { title: "User-Centered Design Explained", url: "https://www.youtube.com/watch?v=9gL57_yP610" }, { title: "Nielsen Norman Group on UCD", url: "https://www.nngroup.com/articles/user-centered-design/" } ],
-                designThinking: [ { title: "What is Design Thinking? (IDEO)", url: "https://www.youtube.com/watch?v=aG0Kqf2tB8I" } ],
-            },
-            assignment: {
-                title: "Mission 1: The Usability Detective",
-                description: `<strong>Your First Mission:</strong> Every great UI/UX developer starts by seeing the world through a user's eyes. Your task is to identify hidden frustrations in everyday objects.<br><br><strong>The Challenge:</strong> Choose a common object (e.g., a remote control, a public sign, a coffee maker) or a simple app screen. Identify 3 specific usability issues. For each, propose a clear, simple design improvement and explain *why* it's an issue from a user's perspective.`
-            }
-        },
-        module2: {
-            name: "Empathize, Define, & Ideate",
-            learningTime: "Approx. 20 hours",
-            minScoreToUnlock: 70, // Score needed to unlock module 3
-            learnings: [ 
-                { title: "Empathizing with Users", description: "Learn techniques to deeply understand user needs, motivations, and frustrations." },
-                { title: "Creating User Personas", description: "Develop fictional characters based on research to represent your target users." },
-                { title: "Defining User Problems", description: "Formulate clear problem statements that will guide your design solutions." },
-            ],
-            skills: { 
-                empathyMapping: { title: "Empathy Mapping", icon: "💖", meaning: "A collaborative visualization tool used to articulate what we know about a particular user type.", useCases: "Used to synthesize user research data and create a shared understanding of user needs." },
-                personas: { title: "User Personas", icon: "👤", meaning: "Fictional characters created to represent the different user types that might use a site, brand, or product in a similar way.", useCases: "Helps the team to focus on a manageable and memorable cast of characters, instead of trying to design for everyone." },
-                problemStatements: { title: "Problem Statements", icon: "❓", meaning: "A concise description of a user's need that a design aims to solve.", useCases: "Guides the ideation process by clearly defining the challenge, ensuring solutions are focused and relevant." },
-            },
-            studyMaterials: { 
-                empathyMapping: [ { title: "What is an Empathy Map?", url: "https://www.youtube.com/watch?v=C_iX4A_uD90" } ],
-                personas: [ { title: "Creating User Personas", url: "https://www.youtube.com/watch?v=L2G_bL-2Q6s" } ],
-                problemStatements: [ { title: "How to Write a Problem Statement", url: "https://www.youtube.com/watch?v=1g71Q13cM00" } ],
-            },
-            assignment: {
-                title: "Mission 2: The Empathy Engine",
-                description: "Your mission is to create a user persona and an empathy map for a new mobile app that helps people learn a new language. You are given a set of research notes: 'Users are busy professionals, aged 25-40. They want to learn conversational skills for travel. They use apps during their commute. They feel intimidated by complex grammar rules.'"
-            }
-        },
-        // Add more modules here following the same structure...
+        module1: { name: "Foundations of UX Design", learningTime: "Approx. 40 hours", minScoreToUnlock: 70 },
+        module2: { name: "Empathize, Define, & Ideate", learningTime: "Approx. 20 hours", minScoreToUnlock: 70 },
+        module3: { name: "Wireframing & Prototyping", learningTime: "Approx. 25 hours", minScoreToUnlock: 70 },
+        module4: { name: "UX Research & Usability", learningTime: "Approx. 21 hours", minScoreToUnlock: 70 },
+        module5: { name: "High-Fidelity Design", learningTime: "Approx. 33 hours", minScoreToUnlock: 70 },
+        module6: { name: "Responsive Design", learningTime: "Approx. 41 hours", minScoreToUnlock: 70 },
+        module7: { name: "Capstone & Portfolio", learningTime: "Approx. 44 hours", minScoreToUnlock: 101 }, // Score > 100 means it's the final module
     };
 
     // --- DOM SELECTORS ---
     const mainContent = document.getElementById('main-content');
-    const moduleTabsContainer = document.getElementById('module-tabs');
+    const moduleProgressionContainer = document.getElementById('module-progression');
     const assignmentSection = document.getElementById('assignment-section');
     const aiQuestionInput = document.getElementById('ai-question-input');
     const askAiBtn = document.getElementById('ask-ai-btn');
@@ -89,19 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- RENDER FUNCTIONS ---
     
-    const renderTabs = () => {
-        moduleTabsContainer.innerHTML = '';
+    const renderModuleCards = () => {
+        moduleProgressionContainer.innerHTML = '';
         Object.keys(modulesData).forEach(key => {
             const module = modulesData[key];
             const moduleNum = parseInt(key.replace('module', ''));
-            const button = document.createElement('button');
-            button.className = 'tab-button';
-            button.setAttribute('role', 'tab');
-            button.dataset.module = key;
-            
+            const card = document.createElement('div');
+            card.dataset.module = key;
+
             let isLocked = false;
             let unlockMessage = '';
-
+            
             if (moduleNum > 1) {
                 const prevModuleKey = `module${moduleNum - 1}`;
                 const prevModule = modulesData[prevModuleKey];
@@ -113,17 +64,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            button.disabled = isLocked;
-            if (isLocked) {
-                button.setAttribute('title', unlockMessage);
-            }
-            
-            button.innerHTML = `<span>${module.name} ${isLocked ? '<span class="lock-icon" aria-label="locked">🔒</span>' : ''}</span>`;
-            
-            if (appState.currentModule === key) {
-                button.classList.add('active');
-            }
-            moduleTabsContainer.appendChild(button);
+            card.className = `module-card ${appState.currentModule === key ? 'active' : ''} ${isLocked ? 'locked' : ''}`;
+            card.setAttribute('title', isLocked ? unlockMessage : `Select ${module.name}`);
+
+            const score = appState.userProgress[key] || 0;
+            const isCompleted = score >= module.minScoreToUnlock;
+
+            card.innerHTML = `
+                <div class="relative w-full h-full module-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm font-bold text-blue-400">MODULE ${moduleNum}</span>
+                        ${isCompleted ? '<span class="text-xs font-bold text-green-400 bg-green-900/50 px-2 py-1 rounded-full">✓ COMPLETED</span>' : ''}
+                    </div>
+                    <h3 class="text-lg font-bold text-white">${module.name}</h3>
+                    <p class="text-sm text-gray-400 mt-2">Score: ${score}/100</p>
+                </div>
+                ${isLocked ? `
+                <div class="lock-overlay">
+                    <svg class="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    <p class="text-sm font-semibold text-white">Locked</p>
+                    <p class="text-xs text-gray-400">${unlockMessage}</p>
+                </div>
+                ` : ''}
+            `;
+            moduleProgressionContainer.appendChild(card);
         });
     };
 
@@ -138,15 +102,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const score = appState.userProgress[appState.currentModule] || 0;
         
         assignmentSection.innerHTML = `
-            <h2 class="text-3xl font-bold text-center mb-2 text-gray-900">${title}</h2>
+            <h2 class="text-3xl font-bold text-center mb-2 text-white">${title}</h2>
             <p class="text-center text-gray-500 mb-6">Estimated Time: ${module.learningTime}</p>
             <div class="max-w-4xl mx-auto">
-                <p class="text-gray-700 mb-6 leading-relaxed">${description}</p>
-                <textarea id="assignment-submission" class="w-full p-3 border border-gray-300 rounded-md mb-4 focus:ring-indigo-500 focus:border-indigo-500" rows="8" placeholder="Complete your assignment here..."></textarea>
+                <div class="text-gray-400 mb-6 leading-relaxed">${description}</div>
+                <textarea id="assignment-submission" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-md mb-4 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500 text-white" rows="8" placeholder="Complete your assignment here..."></textarea>
                 <div class="flex items-center justify-center gap-4 mb-6">
-                    <button id="submit-assignment-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-md transition-colors duration-200">Submit for AI Review</button>
+                    <button id="submit-assignment-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition-colors duration-200">Submit for AI Review</button>
                 </div>
-                <div id="feedback-area" class="bg-gray-100 p-4 rounded-md border border-gray-200 text-gray-700 min-h-[100px]">
+                <div id="feedback-area" class="bg-gray-900 p-4 rounded-md border border-gray-700 text-gray-300 min-h-[100px]">
                     <p class="text-gray-500">Your AI-generated score and feedback will appear here.</p>
                 </div>
                 <div class="chart-container mt-8">
@@ -164,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const feedbackArea = document.getElementById('feedback-area');
         const submissionText = document.getElementById('assignment-submission').value.trim();
         const submitBtn = document.getElementById('submit-assignment-btn');
-        if (!submissionText) { feedbackArea.innerHTML = '<p class="text-red-600 font-bold">Please enter your assignment submission.</p>'; return; }
+        if (!submissionText) { feedbackArea.innerHTML = '<p class="text-red-400 font-bold">Please enter your assignment submission.</p>'; return; }
 
         submitBtn.disabled = true;
         submitBtn.innerHTML = `<span class="loader"></span><span class="ml-2">AI is Reviewing...</span>`;
@@ -186,17 +150,17 @@ document.addEventListener('DOMContentLoaded', () => {
             appState.userProgress[appState.currentModule] = score;
             saveProgress();
             updateProgressChart(score);
-            renderTabs(); 
+            renderModuleCards(); 
 
             const scoreThreshold = modulesData[appState.currentModule].minScoreToUnlock;
             let resultHTML = score >= scoreThreshold ?
-                `<p class="font-bold text-green-700">Mission Passed! AI Score: ${score}/100.</p><p>You have unlocked the next module!</p>` :
-                `<p class="font-bold text-orange-600">Mission Incomplete. AI Score: ${score}/100.</p><p>Please review the feedback, improve your submission, and try again.</p>`;
-            resultHTML += `<div class="mt-4 p-3 bg-blue-50 rounded-md border border-blue-200 text-left"><h4 class="font-bold text-blue-800">AI Mentor's Feedback:</h4><div class="text-blue-700 whitespace-pre-wrap mt-2">${feedback}</div></div>`;
+                `<p class="font-bold text-green-400">Mission Passed! AI Score: ${score}/100.</p><p>You have unlocked the next module!</p>` :
+                `<p class="font-bold text-yellow-400">Mission Incomplete. AI Score: ${score}/100.</p><p>Please review the feedback, improve your submission, and try again.</p>`;
+            resultHTML += `<div class="mt-4 p-3 bg-gray-800 rounded-md border border-gray-700 text-left"><h4 class="font-bold text-blue-400">AI Mentor's Feedback:</h4><div class="text-gray-300 whitespace-pre-wrap mt-2">${feedback}</div></div>`;
             feedbackArea.innerHTML = resultHTML;
 
         } catch (error) {
-            feedbackArea.innerHTML = `<p class="text-red-500">An error occurred during AI review: ${error.message}</p>`;
+            feedbackArea.innerHTML = `<p class="text-red-400">An error occurred during AI review: ${error.message}</p>`;
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerHTML = `Submit for AI Review`;
@@ -204,45 +168,27 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- EVENT LISTENERS ---
-    askAiBtn.addEventListener('click', async () => {
-        const question = aiQuestionInput.value.trim();
-        if (!question) { aiResponseArea.innerHTML = '<p class="text-red-400">Please enter a question.</p>'; return; }
-        askAiBtn.disabled = true;
-        askAiBtn.innerHTML = `<span class="loader"></span><span class="ml-2">Thinking...</span>`;
-        aiResponseArea.innerHTML = `<p class="text-gray-400">Processing...</p>`;
-        try {
-            const finalPrompt = `${aiSystemPrompt}\n\nUser's question: "${question}"`;
-            const responseText = await getAITextResponse(finalPrompt);
-            aiResponseArea.innerHTML = `<div class="content-fade-in whitespace-pre-wrap text-left">${responseText}</div>`;
-        } catch (error) {
-            aiResponseArea.innerHTML = `<p class="text-red-400">Error: ${error.message}</p>`;
-        } finally {
-            askAiBtn.disabled = false;
-            askAiBtn.innerHTML = `<span>Ask AI Co-Pilot</span>`;
-        }
-    });
-
-    moduleTabsContainer.addEventListener('click', (e) => { const button = e.target.closest('.tab-button'); if (button && !button.disabled) { changeModule(button.dataset.module); } });
+    askAiBtn.addEventListener('click', async () => { const question = aiQuestionInput.value.trim(); if (!question) { aiResponseArea.innerHTML = '<p class="text-red-400">Please enter a question.</p>'; return; } askAiBtn.disabled = true; askAiBtn.innerHTML = `<span class="loader"></span><span class="ml-2">Thinking...</span>`; aiResponseArea.innerHTML = `<p class="text-gray-400">Processing...</p>`; try { const finalPrompt = `${aiSystemPrompt}\n\nUser's question: "${question}"`; const responseText = await getAITextResponse(finalPrompt); aiResponseArea.innerHTML = `<div class="content-fade-in whitespace-pre-wrap text-left">${responseText}</div>`; } catch (error) { aiResponseArea.innerHTML = `<p class="text-red-400">Error: ${error.message}</p>`; } finally { askAiBtn.disabled = false; askAiBtn.innerHTML = `<span>Ask AI Co-Pilot</span>`; } });
+    moduleProgressionContainer.addEventListener('click', (e) => { const card = e.target.closest('.module-card'); if (card && !card.classList.contains('locked')) { changeModule(card.dataset.module); } });
     
     // --- OTHER FUNCTIONS ---
     const loadProgress = () => { const savedProgress = JSON.parse(localStorage.getItem('userProgress') || '{}'); appState.userProgress = savedProgress; Object.keys(modulesData).forEach(key => { if (typeof appState.userProgress[key] !== 'number') { appState.userProgress[key] = 0; } }); };
     const saveProgress = () => { localStorage.setItem('userProgress', JSON.stringify(appState.userProgress)); };
-    const changeModule = (newModuleKey) => { if (newModuleKey === appState.currentModule) return; appState.currentModule = newModuleKey; appState.selectedSkill = null; mainContent.style.opacity = 0; setTimeout(() => { renderTabs(); renderContent(); mainContent.style.opacity = 1; }, 300); };
-    const updateActiveSkillCard = () => { document.querySelectorAll('.skill-card').forEach(c => c.classList.remove('active')); if (appState.selectedSkill) { const activeCard = document.querySelector(`#skill-grid [data-skill-key="${appState.selectedSkill}"]`); if (activeCard) activeCard.classList.add('active'); } };
-    const initializeChart = (score) => { const ctx = document.getElementById('progressChart')?.getContext('2d'); if (!ctx) return; if (progressChart) progressChart.destroy(); progressChart = new Chart(ctx, { type: 'bar', data: { labels: ['Mastery Level'], datasets: [{ label: 'Score', data: [score], backgroundColor: score >= 70 ? 'rgba(16, 185, 129, 0.6)' : 'rgba(79, 70, 229, 0.6)', borderColor: score >= 70 ? '#10B981' : '#4F46E5', borderWidth: 2, borderRadius: 5, }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: 'Score (%)' } } }, plugins: { legend: { display: false } } } }); };
-    const updateProgressChart = (score) => { if (!progressChart) { initializeChart(score); return; } progressChart.data.datasets[0].data[0] = score; progressChart.data.datasets[0].backgroundColor = score >= 70 ? 'rgba(16, 185, 129, 0.6)' : 'rgba(79, 70, 229, 0.6)'; progressChart.data.datasets[0].borderColor = score >= 70 ? '#10B981' : '#4F46E5'; progressChart.update(); };
+    const changeModule = (newModuleKey) => { if (newModuleKey === appState.currentModule) return; appState.currentModule = newModuleKey; appState.selectedSkill = null; mainContent.style.opacity = 0; setTimeout(() => { renderModuleCards(); renderContent(); mainContent.style.opacity = 1; }, 300); };
+    const initializeChart = (score) => { const ctx = document.getElementById('progressChart')?.getContext('2d'); if (!ctx) return; if (progressChart) progressChart.destroy(); Chart.defaults.color = '#9ca3af'; Chart.defaults.borderColor = '#4b5563'; progressChart = new Chart(ctx, { type: 'bar', data: { labels: ['Mastery Level'], datasets: [{ label: 'Score', data: [score], backgroundColor: score >= 70 ? 'rgba(52, 211, 153, 0.5)' : 'rgba(99, 102, 241, 0.5)', borderColor: score >= 70 ? '#34d399' : '#6366f1', borderWidth: 2, borderRadius: 5, }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100, grid: { color: '#374151' }, ticks: { color: '#9ca3af' }, title: { display: true, text: 'Score (%)', color: '#9ca3af' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } } }); };
+    const updateProgressChart = (score) => { if (!progressChart) { initializeChart(score); return; } progressChart.data.datasets[0].data[0] = score; progressChart.data.datasets[0].backgroundColor = score >= 70 ? 'rgba(52, 211, 153, 0.5)' : 'rgba(99, 102, 241, 0.5)'; progressChart.data.datasets[0].borderColor = score >= 70 ? '#34d399' : '#6366f1'; progressChart.update(); };
     
     function renderContent() {
         const learningsContent = document.getElementById('learnings-content');
         const skillGrid = document.getElementById('skill-grid');
         const module = modulesData[appState.currentModule];
         learningsContent.innerHTML = '';
-        if (module.learnings) module.learnings.forEach((learning, index) => { const card = document.createElement('div'); card.className = 'bg-white p-6 rounded-lg shadow-md border border-gray-200 content-slide-up'; card.style.animationDelay = `${index * 100}ms`; card.innerHTML = `<h3 class="text-xl font-semibold mb-2 text-indigo-700">${learning.title}</h3><p class="text-gray-600">${learning.description}</p>`; learningsContent.appendChild(card); });
+        if (module.learnings) module.learnings.forEach((learning, index) => { const card = document.createElement('div'); card.className = 'bg-gray-900/50 border border-gray-700 p-6 rounded-lg content-slide-up'; card.style.animationDelay = `${index * 100}ms`; card.innerHTML = `<h3 class="text-xl font-semibold mb-2 text-blue-400">${learning.title}</h3><p class="text-gray-400">${learning.description}</p>`; learningsContent.appendChild(card); });
         skillGrid.innerHTML = '';
-        if(module.skills) Object.keys(module.skills).forEach((key, index) => { const card = document.createElement('div'); card.className = 'skill-card content-slide-up'; card.dataset.skillKey = key; card.style.animationDelay = `${index * 100}ms`; card.innerHTML = `<div class="text-4xl">${module.skills[key].icon}</div><h4 class="mt-2 font-semibold text-gray-700">${module.skills[key].title}</h4>`; skillGrid.appendChild(card); });
+        if(module.skills) Object.keys(module.skills).forEach((key, index) => { const card = document.createElement('div'); card.className = 'skill-card content-slide-up'; card.dataset.skillKey = key; card.style.animationDelay = `${index * 100}ms`; card.innerHTML = `<div class="text-4xl">${module.skills[key].icon}</div><h4 class="mt-2 font-semibold text-white">${module.skills[key].title}</h4>`; skillGrid.appendChild(card); });
         const firstSkillKey = module.skills ? Object.keys(module.skills)[0] : null;
         appState.selectedSkill = firstSkillKey;
-        updateActiveSkillCard();
+        document.querySelector(`#skill-grid [data-skill-key="${appState.selectedSkill}"]`)?.classList.add('active');
         renderSkillDetailsAndMaterials();
         renderAssignment();
     }
@@ -252,21 +198,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const studyMaterialsContent = document.getElementById('study-materials-content');
         const skill = modulesData[appState.currentModule]?.skills?.[appState.selectedSkill];
         if (!skill) { skillDetails.innerHTML = `<p class="text-gray-500 text-center">Select a skill.</p>`; studyMaterialsContent.parentElement.classList.add('hidden'); return; }
-        skillDetails.innerHTML = `<div class="content-fade-in w-full text-left"><h3 class="text-2xl font-bold mb-4 text-indigo-700 flex items-center">${skill.icon} <span class="ml-3">${skill.title}</span></h3><div class="space-y-4"><div><h4 class="font-bold text-lg text-gray-800">Meaning</h4><p class="text-gray-600 mt-1">${skill.meaning}</p></div><div><h4 class="font-bold text-lg text-gray-800">Use Cases</h4><p class="text-gray-600 mt-1">${skill.useCases}</p></div></div></div>`;
+        skillDetails.innerHTML = `<div class="content-fade-in w-full text-left"><h3 class="text-2xl font-bold mb-4 text-blue-400 flex items-center">${skill.icon} <span class="ml-3">${skill.title}</span></h3><div class="space-y-4"><div><h4 class="font-bold text-lg text-white">Meaning</h4><p class="text-gray-400 mt-1">${skill.meaning}</p></div><div><h4 class="font-bold text-lg text-white">Use Cases</h4><p class="text-gray-400 mt-1">${skill.useCases}</p></div></div></div>`;
         const materials = modulesData[appState.currentModule]?.studyMaterials?.[appState.selectedSkill];
         const container = studyMaterialsContent.parentElement;
         if (!materials || materials.length === 0) { container.classList.add('hidden'); return; }
         container.classList.remove('hidden');
-        let linksHTML = `<h3 class="text-2xl font-bold text-center mb-6 text-gray-900">Deep Dive Resources: ${skill.title}</h3><div class="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">`;
-        materials.forEach(material => { linksHTML += `<a href="${material.url}" target="_blank" rel="noopener noreferrer" class="block bg-indigo-50 hover:bg-indigo-100 p-4 rounded-lg transition-colors duration-200 text-indigo-800 font-medium hover:text-indigo-900 text-left flex items-center space-x-3"><svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg><span>${material.title}</span></a>`; });
+        let linksHTML = `<h3 class="text-2xl font-bold text-center mb-6 text-white">Deep Dive Resources: ${skill.title}</h3><div class="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">`;
+        materials.forEach(material => { linksHTML += `<a href="${material.url}" target="_blank" rel="noopener noreferrer" class="block bg-gray-800 hover:bg-gray-700 p-4 rounded-lg transition-colors duration-200 text-blue-400 font-medium hover:text-blue-300 text-left flex items-center space-x-3 border border-gray-700"><svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg><span>${material.title}</span></a>`; });
         linksHTML += `</div>`;
         studyMaterialsContent.innerHTML = linksHTML;
     }
+    
+    document.getElementById('skill-grid').addEventListener('click', (e) => { const card = e.target.closest('.skill-card'); if(card && card.dataset.skillKey !== appState.selectedSkill) { appState.selectedSkill = card.dataset.skillKey; document.querySelectorAll('.skill-card').forEach(c => c.classList.remove('active')); card.classList.add('active'); renderSkillDetailsAndMaterials(); } });
 
-    const skillGrid = document.getElementById('skill-grid');
-    skillGrid.addEventListener('click', (e) => { const card = e.target.closest('.skill-card'); if(card && card.dataset.skillKey !== appState.selectedSkill) { appState.selectedSkill = card.dataset.skillKey; updateActiveSkillCard(); renderSkillDetailsAndMaterials(); } });
+    // --- FULL MODULE DATA & INITIALIZATION ---
+    Object.assign(modulesData.module1, { learnings: [ { title: "Intro to UX Design", description: "Understand the basics of UX design and the product development lifecycle." }, { title: "Core UX Concepts", description: "Familiarize yourself with essential UX terminology and frameworks like user-centered design." }], skills: { ux: { title: "User Experience (UX)", icon: "🎨", meaning: "The overall experience of a person using a product, especially in terms of how easy or pleasing it is to use.", useCases: "Applied to create intuitive apps, websites, and services." } }, studyMaterials: { ux: [{ title: "What is UX Design?", url: "#" }] }, assignment: { title: "Mission 1: The Usability Detective", description: "Choose a common object or app screen. Identify 3 specific usability issues. For each, propose a clear design improvement and explain your reasoning." } });
+    Object.assign(modulesData.module2, { learnings: [ { title: "Empathizing with Users", description: "Learn techniques to deeply understand user needs and motivations." }, { title: "Creating User Personas", description: "Develop fictional characters based on research to represent your target users." }], skills: { personas: { title: "User Personas", icon: "👤", meaning: "Fictional characters created to represent user types.", useCases: "Helps the team focus on a manageable cast of characters, instead of trying to design for everyone." } }, studyMaterials: { personas: [{ title: "Creating User Personas", url: "#" }] }, assignment: { title: "Mission 2: The Empathy Engine", description: "Create a user persona and an empathy map for a new language-learning app based on provided research notes." } });
+    Object.assign(modulesData.module3, { learnings: [ { title: "Wireframing", description: "Learn to create basic structural blueprints for your designs." }, { title: "Prototyping", description: "Build interactive, low-fidelity versions of your designs for early testing." }], skills: { wireframing: { title: "Wireframing", icon: "📝", meaning: "A basic visual guide that represents the skeletal framework of a website or app.", useCases: "Used early in design to lay out ideas and define page structure." } }, studyMaterials: { wireframing: [{ title: "Wireframing for Beginners", url: "#" }] }, assignment: { title: "Mission 3: The Architect", description: "Create a 3-screen wireframe for a new mobile weather app." } });
+    Object.assign(modulesData.module4, { learnings: [ { title: "Usability Studies", description: "Learn how to plan and conduct effective usability tests." }, { title: "Synthesizing Research", description: "Analyze research data to find actionable insights." }], skills: { usability: { title: "Usability Testing", icon: "🧪", meaning: "Evaluating a product by testing it on representative users.", useCases: "Crucial for validating design decisions and identifying confusing elements." } }, studyMaterials: { usability: [{ title: "Usability Testing 101", url: "#" }] }, assignment: { title: "Mission 4: The User Whisperer", description: "Write a research plan for a usability study of a new e-commerce website." } });
+    Object.assign(modulesData.module5, { learnings: [ { title: "Visual Design Principles", description: "Understand hierarchy, balance, and contrast." }, { title: "Design Systems", description: "Learn how to create and use a consistent set of design components." }], skills: { designSystems: { title: "Design Systems", icon: "📚", meaning: "A set of standards, components, and guidelines that ensure design consistency.", useCases: "Used to maintain brand consistency and accelerate design and development workflows." } }, studyMaterials: { designSystems: [{ title: "What is a Design System?", url: "#" }] }, assignment: { title: "Mission 5: The Visual Virtuoso", description: "Design a high-fidelity mockup for the home screen of a new music streaming app." } });
+    Object.assign(modulesData.module6, { learnings: [ { title: "Responsive Grids", description: "Learn how to design layouts that adapt to different screen sizes." }, { title: "Mobile-First Design", description: "Understand the strategy of designing for mobile before designing for desktop." }], skills: { responsive: { title: "Responsive Design", icon: "📱", meaning: "Designing web pages that look good on all devices.", useCases: "Crucial for modern web development to ensure optimal user experience across devices." } }, studyMaterials: { responsive: [{ title: "Responsive Design Explained", url: "#" }] }, assignment: { title: "Mission 6: The Adaptable Architect", description: "Create a responsive design (mobile and desktop views) for a blog article page." } });
+    Object.assign(modulesData.module7, { learnings: [ { title: "Building a Case Study", description: "Learn how to tell a compelling story about your design process." }, { title: "Portfolio Presentation", description: "Prepare to present your work effectively in interviews." }], skills: { portfolio: { title: "UX Portfolio", icon: "💼", meaning: "A curated collection of a UX designer's best work.", useCases: "Essential for job applications, allowing designers to demonstrate their abilities to potential employers." } }, studyMaterials: { portfolio: [{ title: "How to Create a UX Portfolio", url: "#" }] }, assignment: { title: "Mission 7: The Capstone", description: "Create a complete case study for one of the previous projects you completed in this course, ready to be added to your portfolio." } });
 
-    const init = () => { loadProgress(); renderTabs(); renderContent(); setTimeout(() => { mainContent.style.opacity = 1; }, 100); };
+    const init = () => { loadProgress(); renderModuleCards(); renderContent(); setTimeout(() => { mainContent.style.opacity = 1; }, 100); };
     
     init();
 });
