@@ -1,87 +1,74 @@
-/* Using @apply to leverage Tailwind's utility classes for base styles */
+/* Custom properties for the high-contrast Regulatis color palette */
+:root {
+    --primary-dark: #0D0C12;
+    --secondary-dark: #1A1821;
+    --sidebar-dark: #111016;
+    --accent-purple: #A755F7;
+    --accent-purple-hover: #9333EA; /* Tailwind purple-600 */
+    --border-color: #374151; /* Tailwind gray-700 */
+    --text-primary: #F9FAFB; /* Tailwind gray-50 */
+    --text-secondary: #D1D5DB; /* Tailwind gray-300 */
+}
+
 body {
     font-family: 'Inter', sans-serif;
+    background-color: var(--primary-dark);
+    color: var(--text-secondary);
     @apply antialiased;
 }
 
 /* --- ANIMATIONS --- */
-.content-fade-in {
-    animation: fadeIn 0.5s ease-in-out;
+.content-fade-in { animation: fadeIn 0.5s ease-in-out; }
+.content-slide-up { animation: slideUp 0.5s ease-in-out forwards; opacity: 0; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- SIDEBAR NAVIGATION --- */
+.module-link {
+    @apply flex items-center px-4 py-2 rounded-md text-sm font-medium text-gray-400 transition-all duration-200 border-l-2 border-transparent;
 }
 
-.content-slide-up {
-    animation: slideUp 0.5s ease-in-out forwards;
-    opacity: 0;
+.module-link:hover {
+    @apply bg-gray-800/50 text-white;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+.module-link.active {
+    background-color: rgba(167, 85, 247, 0.1);
+    color: var(--text-primary);
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 15px rgba(167, 85, 247, 0.3);
 }
 
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
+.module-link.locked {
+    @apply text-gray-600 cursor-not-allowed opacity-60;
 }
 
-/* --- MODULE PROGRESSION CARDS --- */
-.module-carousel-container {
-    overflow-x: auto;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-}
-.module-carousel-container::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+.module-link.locked:hover {
+    @apply bg-transparent text-gray-600;
 }
 
-.module-card {
-    @apply relative flex-shrink-0 w-64 p-6 rounded-lg border border-gray-700 bg-gray-900/50 backdrop-blur-sm transition-all duration-300 cursor-pointer;
+/* --- GENERAL COMPONENTS --- */
+.button-glow {
+    box-shadow: 0 0 20px rgba(167, 85, 247, 0.4);
 }
 
-.module-card:hover {
-    @apply border-blue-500 transform -translate-y-1;
+.learning-card {
+    @apply bg-secondary-dark border border-border-color p-6 rounded-lg content-slide-up;
 }
 
-.module-card.active {
-    @apply border-blue-500 bg-gray-800/70 shadow-2xl shadow-blue-900/20;
-}
-
-.module-card.locked {
-    @apply bg-gray-900/20 cursor-not-allowed;
-}
-
-.module-card.locked:hover {
-    @apply border-gray-700 transform-none;
-}
-
-.module-card.locked .module-content {
-    @apply opacity-30 blur-sm;
-}
-
-.module-card.locked .lock-overlay {
-    @apply opacity-100;
-}
-
-.lock-overlay {
-    @apply absolute inset-0 flex flex-col items-center justify-center text-center p-4 opacity-0 transition-opacity duration-300;
-}
-
-
-/* --- SKILL CARD STYLES --- */
 .skill-card {
-    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
-    @apply bg-gray-900/50 border border-gray-700 p-4 rounded-lg cursor-pointer text-center h-full flex flex-col items-center justify-center;
+    transition: all 0.2s ease-in-out;
+    @apply bg-secondary-dark border border-border-color p-4 rounded-lg cursor-pointer text-center h-full flex flex-col items-center justify-center;
 }
 
 .skill-card:hover {
-    @apply bg-gray-800/70 border-gray-600;
+    @apply bg-gray-800/50 border-gray-600;
 }
 
 .skill-card.active {
-    box-shadow: 0 0 0 2px #3b82f6; /* blue-500 */
-    @apply bg-gray-800/70 border-blue-500;
+    border-color: var(--accent-purple);
+    background-color: rgba(167, 85, 247, 0.1);
 }
-
 
 /* --- CHART CONTAINER --- */
 .chart-container {
@@ -91,7 +78,6 @@ body {
     margin-left: auto;
     margin-right: auto;
     height: 300px;
-    max-height: 400px;
 }
 
 /* --- AI LOADER --- */
@@ -105,8 +91,4 @@ body {
     box-sizing: border-box;
     animation: rotation 1s linear infinite;
 }
-
-@keyframes rotation {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+@keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
